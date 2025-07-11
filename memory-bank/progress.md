@@ -1,15 +1,22 @@
 # Progress Report
 
 ## What Works
-*   Project planning documents are complete.
-*   The Memory Bank has been initialized with the core context files.
+*   The project has been initialized with Vite and `npm`.
+*   All dependencies (`lit-html`, `jest`, `eslint`, etc.) are installed.
+*   The initial directory structure (`src/engine`, `src/ui`) has been created.
+*   Core type definitions have been added to `src/types.ts`.
+*   The development environment is confirmed to be working with `npm run dev`.
 
 ## What's Left to Build
-Everything. The project is at the very beginning. The implementation plan in `project-plan.md` outlines all the necessary steps, starting with project setup and dependency installation.
+*   **Game Engine**: Deck management, player state, turn logic, and AI.
+*   **UI Layer**: All visual components (`BoardView`, `HandView`, etc.).
+*   **State & Storage**: URL-based state serialization.
+*   **Testing**: Unit tests for game logic and AI.
+*   **Documentation**: User and developer guides.
 
 ## Current Status
-*   **Overall**: Not started.
-*   **Next**: Set up the project structure, install dependencies, and define core types.
+*   **Overall**: Technical setup is complete.
+*   **Next**: Implement the `Deck` manager in `src/engine/deck.ts`.
 
 ## Known Issues
-*   None. Implementation has not yet begun. 
+*   None. The initial setup is stable. A previous `crypto.hash` error was resolved by upgrading the Node.js version to the latest LTS release. 

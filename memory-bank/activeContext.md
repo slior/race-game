@@ -1,18 +1,13 @@
-# Active Context: Project Initialization
+# Active Context: Game Engine Implementation
 
-The current focus is on bootstrapping the "RACE" game project. The foundational planning documents (`project-plan.md` and `game-instructions.md`) have been reviewed, and the Memory Bank has just been initialized.
+The project's foundational structure has been successfully set up. The Vite development server is running, all dependencies are installed, and the initial directory structure and type definitions are in place.
 
 ## Current Goal
-The immediate goal is to establish the project structure as outlined in `project-plan.md`. This involves:
-1.  Initializing an `npm` project with Vite.
-2.  Installing all required dependencies (`lit-html`, `jest`, `eslint`, etc.).
-3.  Creating the initial directory structure (`src/`, `src/engine`, `src/ui`, etc.).
-4.  Defining the core TypeScript types in `src/types.ts`.
+The current focus is on building the core game logic within the **Game Engine Layer**. This involves implementing the rules for managing cards, players, and game flow.
 
 ## Next Steps
-1.  Execute the `npm init` command.
-2.  Run `npm install` for all dependencies.
-3.  Create the folder and file structure.
-4.  Populate `src/types.ts` with the initial type definitions.
+1.  **Implement the Deck Manager** (`src/engine/deck.ts`): Create the logic for shuffling the deck, drawing cards, and handling the discard pile.
+2.  **Implement the Player and Turn Manager** (`src/engine/game.ts`): Develop the functions to manage player state, validate moves, and control the turn-based sequence of the game.
+3.  **Write Unit Tests**: Create Jest tests for the Deck and Game logic to ensure correctness from the start.
 
-This will lay the groundwork for implementing the game engine and UI components. 
+This phase will establish the backbone of the game's functionality, upon which the AI and UI layers will be built. 
