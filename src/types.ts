@@ -1,5 +1,5 @@
-type CardType = 'Progress' | 'Block' | 'Remedy' | 'Immunity';
-interface Card {
+export type CardType = 'Progress' | 'Block' | 'Remedy' | 'Immunity';
+export interface Card {
   id: string;
   type: CardType;
   name: string;
@@ -7,12 +7,12 @@ interface Card {
   blocksType?: string;     // for Block
   remediesType?: string;   // for Remedy/Immunity
 }
-interface PlayerState {
+export interface PlayerState {
   hand: Card[];
   inPlay: { progress: Card[]; blocks: Card[]; immunities: Card[] };
   totalKm: number;
 }
-interface GameState {
+export interface GameState {
   deck: Card[];
   discard: Card[];
   players: PlayerState[];
