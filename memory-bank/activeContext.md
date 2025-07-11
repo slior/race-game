@@ -1,12 +1,13 @@
-# Active Context: State Persistence
+# Active Context: UI Development
 
-The core game logic and a functional AI opponent are now complete and fully tested. The AI was implemented using a Strategy Pattern to allow for different, interchangeable "personalities" like a balanced `HeuristicStrategy` and an `AggressorStrategy`.
+The core game engine, AI, and state persistence layers are now complete and fully tested. The game is functionally playable from end-to-end via state manipulation and URL sharing.
 
 ## Current Goal
-With the game engine and AI in place, the focus now shifts entirely to developing the state serialization mechanism.
+The focus now shifts to the final major component: the **UI Layer**. This involves creating all the visual elements required for a user to interact with the game in the browser.
 
 ## Next Steps
-1.  **Implement State Serialization** (`src/state/storage.ts`): Create the functions to encode the `GameState` object into a Base64 string for URL persistence and decode it back on page load.
-2.  **Write Unit Tests**: Create Jest tests for the state serialization logic.
-
-This phase will complete the core engine and persistence layers, making the game fully playable from end-to-end (via state manipulation), albeit without a UI. 
+1.  **Implement `BoardView`**: Create the component to display each player's name, total distance, and cards in play (blocks and immunities).
+2.  **Implement `HandView`**: Create the component to display the current player's hand of cards.
+3.  **Implement `LogView`**: Create a component to show a running list of game events.
+4.  **Implement `Controls`**: Create the UI buttons for primary game actions like "Play Card" and "Discard".
+5.  **Integrate Views**: Assemble all UI components into a main application view that reads from the `GameState` and re-renders on change. 
