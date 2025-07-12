@@ -1,7 +1,5 @@
 # RACE Card Game
 
-![Gameplay Screenshot](placeholder.png)
-
 A web-based, multiplayer card game where the goal is to be the first to complete a 1000 km road trip. This project is a digital adaptation of the card game "RACE" by Shafir Games.
 
 This is a turn-based game for 2-4 players. The game involves drawing and playing cards, which can be progress, block, remedy, or immunity cards. The entire game state is stored in the URL, allowing you to share your game or resume it at any time just by sharing the link.
