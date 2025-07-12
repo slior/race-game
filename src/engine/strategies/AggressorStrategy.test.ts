@@ -31,6 +31,7 @@ const createPlayerState = (
   hand: [],
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
+  isReady: false,
   ...overrides,
 });
 

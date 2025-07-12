@@ -15,6 +15,7 @@ import {
   PROGRESS_TYPE,
   GREEN_LIGHT_NAME,
   isImmuneTo,
+  hasGreenLight,
 } from '../types';
 
 const DEFAULT_INITIAL_HAND_SIZE = 5;
@@ -34,6 +35,7 @@ export const createPlayer = (id: string, initialHand: Card[]): PlayerState => {
       immunities: [],
     },
     totalKm: 0,
+    isReady: false,
   };
 };
 
@@ -84,6 +86,8 @@ export const applyCardToPlayer = (
       newPlayerState.inPlay.immunities.push(card);
       break;
   }
+
+  newPlayerState.isReady = hasGreenLight(newPlayerState);
   return newPlayerState;
 };
 
@@ -144,10 +148,15 @@ export const createInitialGameState = (
     players.push(createPlayer(`player-${i}`, drawn));
   }
 
+  const newPlayers = players.map(p => ({
+    ...p,
+    isReady: hasGreenLight(p),
+  }));
+
   return {
     deck: workingDeck,
     discard: workingDiscard,
-    players,
+    players: newPlayers,
     turnIndex: 0,
     actionState: null,
     events: [],

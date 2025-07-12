@@ -63,6 +63,7 @@ export interface PlayerState {
   hand: Card[];
   inPlay: { progress: Card[]; blocks: Card[]; immunities: Card[] };
   totalKm: number;
+  isReady: boolean;
 }
 export interface GameState {
   deck: Card[];
@@ -77,6 +78,18 @@ export interface GameState {
   events: GameEvent[];
 }
 
+
+/**
+ * Checks if the player has a green light.
+ *
+ * This function determines whether the player has a green light card in play.
+ *
+ * @param player - The PlayerState object representing the player to check.
+ * @returns True if the player has a green light, false otherwise.
+ */
+export function hasGreenLight(player: PlayerState): boolean {
+    return player.inPlay.progress.some(c => c.name === GREEN_LIGHT_NAME);
+}
 
 /**
  * Checks if a player is immune to the effect of a given Block card.
@@ -231,16 +244,14 @@ export function isCardPlayable(card: Card, gameState: GameState): boolean {
   switch (card.type) {
     case PROGRESS_TYPE:
       // Player must have a Green Light and must not be blocked.
-      const hasGreenLight = currentPlayer.inPlay.progress.some(c => c.name === GREEN_LIGHT_NAME);
-      return hasGreenLight && !isBlocked(currentPlayer);
+      return hasGreenLight(currentPlayer) && !isBlocked(currentPlayer);
 
     case REMEDY_TYPE:
       // Special logic for Green Light
       if (card.name === GREEN_LIGHT_NAME) {
-        const hasGreenLight = currentPlayer.inPlay.progress.some(c => c.name === GREEN_LIGHT_NAME);
         const isBlockedByStop = currentPlayer.inPlay.blocks.some(b => b.blocksType === BLOCK_STOP_TYPE);
         // Playable if it's the first one, or if remedying a stop sign.
-        return !hasGreenLight || isBlockedByStop;
+        return !hasGreenLight(currentPlayer) || isBlockedByStop;
       }
       // Other remedies can only be played if the corresponding block is active.
       return currentPlayer.inPlay.blocks.some(b => b.blocksType === card.remediesType);

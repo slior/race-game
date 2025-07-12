@@ -16,7 +16,7 @@ import {
 } from './types';
 import { createInitialGameState, applyCardToPlayer, advanceTurn, checkWinCondition } from './engine/game';
 import { draw } from './engine/deck';
-import { renderBoard } from './ui/board';
+import { renderPlayer } from './ui/player';
 import { HandView } from './ui/hand';
 import { ControlsView } from './ui/ControlsView';
 import { LogView } from './ui/LogView';
@@ -160,11 +160,23 @@ class App {
     const template = html`
       <div class="app-container">
         <div class="top-section">
-          ${renderBoard(
-            this.state.players,
-            this.state.turnIndex,
-            this.state.actionState
-          )}
+          <div class="board">
+            ${this.state.players.map((player, index) => {
+              const isCurrentPlayer = this.state.turnIndex === index;
+              const isTargetable =
+                isTargeting &&
+                player.id !== currentPlayer.id;
+
+              return html`
+                <div class="player-area">
+                  ${renderPlayer(player, index, isTargetable, isCurrentPlayer)}
+                  ${isCurrentPlayer
+                    ? HandView(currentPlayer.hand, this.selectedCardId)
+                    : ''}
+                </div>
+              `;
+            })}
+          </div>
         </div>
         <div class="bottom-section">
           <div class="left-pane">
@@ -172,7 +184,6 @@ class App {
           </div>
           <div class="right-pane">
             <div class="hand-and-controls">
-              ${HandView(currentPlayer.hand, this.selectedCardId)}
               ${ControlsView({
                 selectedCardId: this.selectedCardId,
                 isTargeting,

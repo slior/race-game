@@ -1,6 +1,6 @@
-# Active Context: Project Robustness and Documentation
+# Active Context: UI Enhancements and Documentation
 
-The main development phase is complete. The core game engine, state management, and a fully interactive UI layer have been implemented and integrated. A recent phase of intensive bug fixing has significantly improved the stability and correctness of the game's rule enforcement. The game is now feature-complete and stable.
+The main development phase is complete, and recent work has focused on improving the user interface for better clarity and usability. A "go" indicator has been added to show player readiness, and the hand of the current player is now displayed more intuitively. The game is feature-complete and stable, with the entire test suite passing after being updated to reflect the latest changes.
 
 ## Current Goal
 The focus is on project finalization. This involves ensuring the project is well-documented and robust.

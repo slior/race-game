@@ -55,6 +55,7 @@ export function renderPlayer(
         <span>${player.totalKm}km</span>
       </div>
       <div class="cards-in-play">
+        ${player.isReady ? html`<div class="go-indicator"></div>` : ''}
         ${cardsInPlay.map(card => renderCard(card))}
       </div>
     </div>

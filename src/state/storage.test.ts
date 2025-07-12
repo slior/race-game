@@ -18,6 +18,7 @@ describe('State Storage', () => {
         hand: [{ id: 'c2', type: REMEDY_TYPE, name: GREEN_LIGHT_NAME }],
         inPlay: { progress: [], blocks: [], immunities: [] },
         totalKm: 0,
+        isReady: false,
       },
     ],
     turnIndex: 0,

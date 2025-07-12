@@ -12,7 +12,8 @@
 *   **A basic AI opponent is implemented (`src/engine/ai.ts`) using a Strategy pattern.** This includes a balanced `HeuristicStrategy` and an `AggressorStrategy`, both of which are fully unit-tested.
 *   **The core engine has been refactored to use type-safe constants and helper functions**, eliminating magic strings and improving maintainability.
 *   **State & Storage**: URL-based state serialization (`encodeState`) and deserialization (`decodeState`) is implemented and unit-tested.
-*   **UI Layer**: The entire UI layer is now implemented. This includes the `BoardView`, `HandView`, `LogView`, and `ControlsView`. A central `App` component manages state and orchestrates all UI rendering and interactions, including targeting logic for block cards.
+*   **UI Layer**: The entire UI layer is now implemented. This includes the `PlayerView`, `HandView`, `LogView`, and `ControlsView`. A central `App` component manages state and orchestrates all UI rendering and interactions, including targeting logic for block cards.
+*   **UI Enhancements**: The UI has been improved to provide clearer state visibility. A "go" indicator now appears on a player's view when they can play progress cards. The layout has been updated to show the current player's hand directly beneath their player area, creating a more intuitive flow.
 *   **Rule Enforcement**: The game's core rules are now robustly enforced by a central `isCardPlayable` helper function and have been validated with an extensive test suite.
 
 ## What's Left to Build
@@ -24,6 +25,7 @@
 *   **Initial Green Light Play**: Fixed a bug that prevented players from playing their initial "Green Light" card if they were not blocked.
 *   **Block Card Playability**: Fixed a UI bug where the "Play Card" button was incorrectly disabled for block cards.
 *   **Progress While Blocked**: Fixed a bug that allowed players to play progress cards while under the effect of a block card.
+*   **Test Suite Mocks**: Updated all mock objects in the unit test suites to include the new `isReady` property on the `PlayerState` interface, resolving all test failures.
 
 ## Current Status
 *   **Overall**: The game is feature-complete and highly stable after a series of significant bug fixes. The core engine, state persistence, and a fully interactive UI are all implemented and integrated.

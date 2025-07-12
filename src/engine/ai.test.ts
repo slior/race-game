@@ -27,6 +27,7 @@ describe('AIPlayer', () => {
       hand: [],
       inPlay: { progress: [], blocks: [], immunities: [] },
       totalKm: 0,
+      isReady: false,
     };
     const gameState: GameState = {
       players: [playerState],

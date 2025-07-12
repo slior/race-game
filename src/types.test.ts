@@ -26,6 +26,7 @@ const createMockPlayer = (overrides: Partial<PlayerState> & { id: string }): Pla
   hand: [],
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
+  isReady: false,
   ...overrides,
 });
 
