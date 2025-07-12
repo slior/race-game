@@ -1,5 +1,9 @@
 # 003: Use JSON for Game State Serialization
 
+## Status
+
+ACCEPTED: 2025-07-11
+
 ## Context
 
 To make the RACE card game shareable and resumable, the entire `GameState` object needs to be serialized into a string that can be stored in a URL. The chosen serialization format needed to be simple, universally supported in browsers, and sufficient for the project's data structures, which are pure data objects without methods.

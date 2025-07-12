@@ -1,5 +1,9 @@
 # 002: AI Behavior Implementation using Strategy Pattern
 
+## Status
+
+ACCEPTED: 2025-07-11
+
 ## Context
 
 The project requires an AI opponent for the RACE card game. A key non-functional requirement is the ability to easily define and switch between different AI "personalities" or behaviors (e.g., a balanced player, an aggressive player, a simple progress-focused player). This is necessary for creating varied gameplay experiences and potentially for implementing different difficulty levels in the future.

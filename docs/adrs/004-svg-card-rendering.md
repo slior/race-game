@@ -1,5 +1,9 @@
 # 004: Programmatic SVG for Card Rendering
 
+## Status
+
+ACCEPTED: 2025-07-12
+
 ## Context
 
 For the UI of the RACE card game, we need to display various cards (Blocks, Remedies, Immunities) on the game board. The visual representation must be clear, efficient, and maintainable.
