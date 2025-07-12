@@ -20,6 +20,7 @@ describe('State Storage', () => {
       },
     ],
     turnIndex: 0,
+    events: [],
   };
 
   /**

@@ -1,11 +1,10 @@
-# Active Context: UI Development
+# Active Context: Project Finalization
 
-The core game engine and the initial `BoardView` UI component are complete. The board is implemented using a composable pattern (`BoardView` -> `PlayerView` -> `CardView`) and uses programmatically generated SVGs for card visuals. The `HandView` has now also been implemented.
+The main development phase is complete. The core game engine, state management, and a fully interactive UI layer have been implemented and integrated. The game is now feature-complete and playable.
 
 ## Current Goal
-The focus is to continue building the UI Layer by creating the components needed for player interaction.
+The focus has shifted from feature development to project finalization. This involves ensuring the project is well-documented and robust.
 
 ## Next Steps
-1.  **Implement `Controls`**: Create the UI buttons for primary game actions like "Play Card" and "Discard".
-2.  **Implement `LogView`**: Create a component to show a running list of game events.
-3.  **Integrate Views**: Assemble all UI components into the main application view and connect them to the game engine's state update loop. 
+1.  **Documentation**: Write comprehensive user and developer guides to ensure the project is understandable and maintainable.
+2.  **Testing**: Consider adding end-to-end tests to validate the full user interaction flow from starting a game to winning. 

@@ -52,6 +52,12 @@ export interface Card {
   blocksType?: BlockType;     // for Block
   remediesType?: BlockType;   // for Remedy/Immunity
 }
+
+export interface GameEvent {
+  message: string;
+  type: 'play' | 'discard' | 'draw' | 'system';
+}
+
 export interface PlayerState {
   hand: Card[];
   inPlay: { progress: Card[]; blocks: Card[]; immunities: Card[] };
@@ -62,6 +68,11 @@ export interface GameState {
   discard: Card[];
   players: PlayerState[];
   turnIndex: number;
+  actionState?: {
+    type: 'awaiting-target';
+    cardId: string;
+  } | null;
+  events: GameEvent[];
 }
 
 

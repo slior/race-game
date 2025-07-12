@@ -34,6 +34,20 @@ body {
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.player.targetable {
+  cursor: pointer;
+  background-color: #fffbe6;
+  border-color: #e74c3c;
+  box-shadow: 0 0 15px rgba(231, 76, 60, 0.7);
+  transform: scale(1.03);
+}
+
+.player.current-player {
+  border-color: #2980b9;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.7);
 }
 
 .player-info {
@@ -109,4 +123,140 @@ body {
 .hand-container .card-wrapper.selected .card-svg {
   outline: 2px solid #3498db;
   border-radius: 4px;
+}
+
+/* LogView Component */
+.log-view {
+  background-color: #fff;
+  border: 1px solid var(--player-border);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 300px;
+  overflow-y: auto;
+}
+
+.log-view h3 {
+  margin-top: 0;
+}
+
+.log-view ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.log-entry {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.log-entry--play {
+  color: #27ae60; /* Green */
+}
+
+.log-entry--discard {
+  color: #f39c12; /* Orange */
+}
+
+.log-entry--draw {
+  color: #3498db; /* Blue */
+}
+
+.log-entry--system {
+  color: #95a5a6; /* Gray */
+  font-style: italic;
+}
+
+/* ControlsView Component */
+.controls-view {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.control-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.control-button:hover:not(:disabled) {
+  background-color: #2980b9;
+}
+
+.control-button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.targeting-indicator {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e74c3c;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.top-section {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 1rem;
+}
+
+.bottom-section {
+  display: flex;
+  gap: 1rem;
+  height: 40%;
+  min-height: 350px; /* Ensure enough space for hand and log */
+}
+
+.left-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-pane {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.hand-and-controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 } 

@@ -1,15 +1,22 @@
 # System Patterns
 
-The application is structured into three distinct layers, promoting a clear separation of concerns.
+The application is structured into three distinct layers, promoting a clear separation of concerns. The UI layer is orchestrated by a central `App` component.
 
 ```mermaid
 flowchart TD
     subgraph UI Layer
-        direction LR
-        BoardView
-        HandView
-        LogView
-        Controls
+        direction TD
+        App
+
+        subgraph "Views"
+            direction LR
+            BoardView
+            HandView
+            LogView
+            ControlsView
+        end
+
+        App --> Views
     end
 
     subgraph Game Engine Layer
@@ -26,7 +33,8 @@ flowchart TD
         URLSerialization
     end
 
-    UI_Layer --> Game_Engine_Layer --> State_Storage_Layer
+    App --> Game_Engine_Layer
+    Game_Engine_Layer --> State_Storage_Layer
 
     style UI_Layer fill:#f9f,stroke:#333,stroke-width:2px
     style Game_Engine_Layer fill:#ccf,stroke:#333,stroke-width:2px
@@ -35,12 +43,13 @@ flowchart TD
 
 ## 1. UI Layer
 
-*   **Responsibilities**: Renders the game state and captures user input. It is composed of several views:
+*   **Responsibilities**: Renders the game state and captures user input.
+*   **Pattern**: The UI is managed by a central `App` component (`app.ts`) which holds the application state. It renders a set of stateless view components and handles events from them. When the state changes, the `App` re-renders the necessary parts of the UI. This creates a unidirectional data flow.
+    *   `App`: The orchestrator. Manages state and the render loop.
     *   `BoardView`: Shows each player's progress and status.
     *   `HandView`: Displays the current player's cards.
     *   `LogView`: A running log of game events.
-    *   `Controls`: UI buttons for game actions.
-*   **Pattern**: The UI is reactive. It doesn't hold any state itself but re-renders completely whenever the central game state changes. `lit-html` is used for efficient DOM updates.
+    *   `ControlsView`: UI buttons for game actions.
 
 ## 2. Game Engine Layer
 

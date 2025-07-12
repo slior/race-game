@@ -55,6 +55,7 @@ describe('AggressorStrategy', () => {
       deck: [],
       discard: [],
       turnIndex: 0,
+      events: [],
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);
@@ -91,6 +92,7 @@ describe('AggressorStrategy', () => {
       deck: [],
       discard: [],
       turnIndex: 0,
+      events: [],
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);
@@ -107,6 +109,7 @@ describe('AggressorStrategy', () => {
       deck: [],
       discard: [],
       turnIndex: 0,
+      events: [],
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);

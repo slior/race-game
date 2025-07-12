@@ -21,14 +21,35 @@ import { renderCard } from './card';
  *
  * @param player The player object to render.
  * @param playerIndex The index of the player, used for display purposes.
+ * @param isTargetable A boolean indicating if the player can be targeted.
+ * @param isCurrentPlayer A boolean indicating if this is the current player.
  * @returns A lit-html TemplateResult containing the player's UI.
  */
-export function renderPlayer(player: PlayerModel, playerIndex: number): TemplateResult {
+export function renderPlayer(
+  player: PlayerModel,
+  playerIndex: number,
+  isTargetable: boolean,
+  isCurrentPlayer: boolean
+): TemplateResult {
   // Combine all cards in play (blocks and immunities) into a single array
   const cardsInPlay = [...player.inPlay.blocks, ...player.inPlay.immunities];
 
+  const onPlayerClick = () => {
+    if (!isTargetable) return;
+    document.dispatchEvent(
+      new CustomEvent('player-selected-as-target', {
+        detail: { playerIndex },
+      })
+    );
+  };
+
   return html`
-    <div class="player">
+    <div
+      class="player ${isTargetable ? 'targetable' : ''} ${isCurrentPlayer
+        ? 'current-player'
+        : ''}"
+      @click=${onPlayerClick}
+    >
       <div class="player-info">
         <h2>Player ${playerIndex + 1}</h2>
         <span>${player.totalKm}km</span>

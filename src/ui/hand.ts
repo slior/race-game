@@ -17,29 +17,35 @@ import type { PlayerState, Card } from '../types';
  * Renders the current player's hand, displaying their cards in an interactive fan layout.
  * It handles card selection visuals and forwards selection events to the parent component.
  *
- * @param {HandViewProps} props - The properties for rendering the hand view.
+ * @param hand The array of cards in the player's hand.
+ * @param selectedCardId The ID of the currently selected card.
  * @returns {import('lit-html').TemplateResult} The lit-html template for the player's hand.
  */
-export const HandView = ({
-  player,
-  selectedCard,
-  onCardSelect,
-}: {
-  player: PlayerState;
-  selectedCard: Card | null;
-  onCardSelect: (card: Card) => void;
-}) => {
+export function HandView(
+  hand: Card[],
+  selectedCardId: string | null
+) {
+  const onCardClick = (card: Card) => {
+    document.dispatchEvent(
+      new CustomEvent('card-selected', {
+        detail: { cardId: card.id },
+        bubbles: true,
+        composed: true,
+      })
+    );
+  };
+
   // External function call:
   // CardView({ card }): Renders a single card SVG.
   // Input: { card: Card }
   // Output: A lit-html template result representing the card.
   return html`
     <div class="hand-container">
-      ${player.hand.map(
+      ${hand.map(
         (card) => html`
           <div
-            class="card-wrapper ${selectedCard === card ? 'selected' : ''}"
-            @click=${() => onCardSelect(card)}
+            class="card-wrapper ${selectedCardId === card.id ? 'selected' : ''}"
+            @click=${() => onCardClick(card)}
             title=${card.name}
           >
             ${CardView(card)}
