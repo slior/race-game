@@ -62,6 +62,7 @@ body {
 .card-svg {
   width: 60px;
   height: 84px;
+  outline: 1px solid rgba(0, 0, 0, 0.3); /* Default border for card separation */
 }
 
 .card-svg text {
@@ -69,4 +70,43 @@ body {
   font-family: var(--font-family);
   fill: var(--card-text-color);
   font-weight: bold;
+}
+
+.player-view .in-play .card-view {
+  margin-right: 5px;
+}
+
+/* HandView Component */
+.hand-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 20px;
+  min-height: 150px;
+}
+
+.hand-container .card-wrapper {
+  transition: transform 0.2s ease-in-out, margin 0.2s ease-in-out;
+  margin-left: -40px; /* Overlap cards */
+}
+
+.hand-container .card-wrapper:first-child {
+  margin-left: 0;
+}
+
+.hand-container .card-wrapper:hover {
+  transform: translateY(-20px) scale(1.05);
+  margin-right: 10px;
+  margin-left: -30px;
+}
+
+.hand-container .card-wrapper.selected {
+  transform: translateY(-30px) scale(1.1);
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.8);
+  border-radius: 4px;
+}
+
+.hand-container .card-wrapper.selected .card-svg {
+  outline: 2px solid #3498db;
+  border-radius: 4px;
 } 
