@@ -14,6 +14,7 @@ describe('State Storage', () => {
     discard: [],
     players: [
       {
+        id: 'player-0',
         hand: [{ id: 'c2', type: REMEDY_TYPE, name: GREEN_LIGHT_NAME }],
         inPlay: { progress: [], blocks: [], immunities: [] },
         totalKm: 0,

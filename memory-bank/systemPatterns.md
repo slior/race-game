@@ -71,5 +71,6 @@ flowchart TD
 ## 4. Core Engine Patterns
 
 *   **Type-Safe Constants**: All magic strings (card names, types, etc.) are defined as exported constants in `src/types.ts`. This ensures consistency and allows for static type checking, preventing typos and runtime errors.
+*   **Centralized Rule Enforcement**: A single, pure function, `isCardPlayable(card, gameState)`, serves as the definitive source of truth for all card playability rules. It resides in `src/types.ts` and is used by both the UI layer (to enable/disable buttons) and the AI strategies (to make legal moves). This ensures that rules are consistent across the entire application and easy to test.
 *   **Helper Functions**: Common logic, such as checking for immunity (`isImmuneTo`) or finding a player's opponents (`getPlayersOpponents`), is extracted into pure, reusable helper functions within `src/types.ts` and `src/engine/game.ts`. This promotes code reuse and simplifies component logic (like AI Strategies).
 *   **Centralized Card Definitions**: The master list of all game cards is defined in `src/engine/cards.ts`, using the aforementioned type-safe constants. This serves as the single source of truth for all card data. 

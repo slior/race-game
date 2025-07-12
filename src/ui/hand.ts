@@ -4,7 +4,7 @@
  */
 import { html } from 'lit-html';
 import { renderCard as CardView } from './card';
-import type { PlayerState, Card } from '../types';
+import type { Card } from '../types';
 
 /**
  * @typedef {object} HandViewProps

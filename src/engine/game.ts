@@ -13,6 +13,7 @@ import {
   REMEDY_TYPE,
   IMMUNITY_TYPE,
   PROGRESS_TYPE,
+  GREEN_LIGHT_NAME,
   isImmuneTo,
 } from '../types';
 
@@ -23,8 +24,9 @@ const DEFAULT_INITIAL_HAND_SIZE = 5;
  * @param initialHand - The initial set of cards for the player.
  * @returns A new PlayerState object.
  */
-export const createPlayer = (initialHand: Card[]): PlayerState => {
+export const createPlayer = (id: string, initialHand: Card[]): PlayerState => {
   return {
+    id,
     hand: initialHand,
     inPlay: {
       progress: [],
@@ -50,6 +52,14 @@ export const applyCardToPlayer = (
 
   switch (card.type) {
     case PROGRESS_TYPE:
+      // A player must have a green light to play a progress card.
+      if (
+        !newPlayerState.inPlay.progress.find(
+          (c: Card) => c.name === GREEN_LIGHT_NAME
+        )
+      ) {
+        return newPlayerState; // No change if no green light
+      }
       if (card.value) {
         newPlayerState.totalKm += card.value;
         newPlayerState.inPlay.progress.push(card);
@@ -61,6 +71,10 @@ export const applyCardToPlayer = (
       }
       break;
     case REMEDY_TYPE:
+      // The "Green Light" card is special; it's a prerequisite for progress.
+      if (card.name === GREEN_LIGHT_NAME) {
+        newPlayerState.inPlay.progress.push(card);
+      }
       // Find and remove the corresponding block
       newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
         (block: Card) => block.blocksType !== card.remediesType
@@ -127,7 +141,7 @@ export const createInitialGameState = (
     } = draw(workingDeck, workingDiscard, initialHandSize);
     workingDeck = newDeck;
     workingDiscard = newDiscard;
-    players.push(createPlayer(drawn));
+    players.push(createPlayer(`player-${i}`, drawn));
   }
 
   return {
@@ -135,5 +149,7 @@ export const createInitialGameState = (
     discard: workingDiscard,
     players,
     turnIndex: 0,
+    actionState: null,
+    events: [],
   };
 };

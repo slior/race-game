@@ -23,6 +23,7 @@ describe('AIPlayer', () => {
     const aiPlayer = new AIPlayer(mockStrategy);
     
     const playerState: PlayerState = {
+      id: 'ai-player',
       hand: [],
       inPlay: { progress: [], blocks: [], immunities: [] },
       totalKm: 0,
@@ -32,6 +33,7 @@ describe('AIPlayer', () => {
       deck: [],
       discard: [],
       turnIndex: 0,
+      events: [],
     };
 
     // 2. Act

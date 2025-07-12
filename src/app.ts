@@ -12,6 +12,7 @@ import {
   type Card,
   BLOCK_TYPE,
   type GameEvent,
+  isCardPlayable,
 } from './types';
 import { createInitialGameState, applyCardToPlayer, advanceTurn, checkWinCondition } from './engine/game';
 import { draw } from './engine/deck';
@@ -86,6 +87,8 @@ class App {
     const card = this.state.players[this.state.turnIndex].hand.find(c => c.id === cardId);
 
     if (card) {
+      // Set the targetId in the actionState before playing the card
+      this.state.actionState.targetId = this.state.players[targetPlayerIndex].id;
       this.playCard(card, targetPlayerIndex);
     }
   }
@@ -151,6 +154,9 @@ class App {
     const currentPlayer = this.state.players[this.state.turnIndex];
     const isTargeting = this.state.actionState?.type === 'awaiting-target';
 
+    const selectedCard = this.selectedCardId ? currentPlayer.hand.find(c => c.id === this.selectedCardId) : null;
+    const canPlay = selectedCard ? isCardPlayable(selectedCard, this.state) : false;
+
     const template = html`
       <div class="app-container">
         <div class="top-section">
@@ -170,6 +176,7 @@ class App {
               ${ControlsView({
                 selectedCardId: this.selectedCardId,
                 isTargeting,
+                canPlay,
               })}
             </div>
           </div>

@@ -13,13 +13,20 @@
 *   **The core engine has been refactored to use type-safe constants and helper functions**, eliminating magic strings and improving maintainability.
 *   **State & Storage**: URL-based state serialization (`encodeState`) and deserialization (`decodeState`) is implemented and unit-tested.
 *   **UI Layer**: The entire UI layer is now implemented. This includes the `BoardView`, `HandView`, `LogView`, and `ControlsView`. A central `App` component manages state and orchestrates all UI rendering and interactions, including targeting logic for block cards.
+*   **Rule Enforcement**: The game's core rules are now robustly enforced by a central `isCardPlayable` helper function and have been validated with an extensive test suite.
 
 ## What's Left to Build
 *   **Documentation**: User and developer guides.
 *   **Testing**: End-to-end tests for the complete user flow.
 
+## Recent Bug Fixes
+*   **Green Light Prerequisite**: Fixed a bug where the rule requiring a "Green Light" before playing progress cards was not enforced.
+*   **Initial Green Light Play**: Fixed a bug that prevented players from playing their initial "Green Light" card if they were not blocked.
+*   **Block Card Playability**: Fixed a UI bug where the "Play Card" button was incorrectly disabled for block cards.
+*   **Progress While Blocked**: Fixed a bug that allowed players to play progress cards while under the effect of a block card.
+
 ## Current Status
-*   **Overall**: The game is now feature-complete and playable. The core engine, state persistence, and a fully interactive UI are all implemented and integrated.
+*   **Overall**: The game is feature-complete and highly stable after a series of significant bug fixes. The core engine, state persistence, and a fully interactive UI are all implemented and integrated.
 *   **Next**: Write comprehensive documentation and consider end-to-end testing.
 
 ## Known Issues

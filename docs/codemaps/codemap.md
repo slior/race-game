@@ -12,7 +12,7 @@ This directory contains the main entry point for the application, core data type
 
 ## Files
 
-- [`types.ts`](../../src/types.ts): Defines the core data structures (`Card`, `PlayerState`, `GameState`) and, crucially, a comprehensive set of **exported constants** for all card types, names, and block types. It also contains pure helper functions for common game logic checks. This file is central to maintaining type safety and consistency across the entire application.
+- [`types.ts`](../../src/types.ts): Defines the core data structures (`Card`, `PlayerState`, `GameState`) which include unique IDs for players. It also contains a comprehensive set of **exported constants** for all card types and names. Crucially, this file houses the game's most important pure helper functions, including **`isCardPlayable`**, which serves as the single source of truth for all game rule enforcement.
 
 ## Architecture
 

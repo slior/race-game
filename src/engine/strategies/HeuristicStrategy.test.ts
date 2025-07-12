@@ -29,6 +29,7 @@ const createCard = (overrides: Partial<Card> & { id: string }): Card => ({
 const createPlayerState = (
   overrides: Partial<PlayerState>
 ): PlayerState => ({
+  id: 'test-player',
   hand: [],
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
@@ -49,7 +50,7 @@ describe('HeuristicStrategy', () => {
       hand: [repair],
       inPlay: { ...createPlayerState({}).inPlay, blocks: [flatTire] },
     });
-    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0 };
+    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
 
     const action = strategy.decideMove(aiPlayer, gameState);
     expect(action).toEqual(newGameAction(PLAY_CARD, 'c2'));
@@ -63,7 +64,7 @@ describe('HeuristicStrategy', () => {
       remediesType: BLOCK_STOP_TYPE,
     });
     const aiPlayer = createPlayerState({ hand: [greenLight] });
-    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0 };
+    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
     
     const action = strategy.decideMove(aiPlayer, gameState);
     expect(action).toEqual(newGameAction(PLAY_CARD, 'gl'));
@@ -81,6 +82,7 @@ describe('HeuristicStrategy', () => {
       deck: [],
       discard: [],
       turnIndex: 0,
+      events: [],
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);
@@ -96,7 +98,7 @@ describe('HeuristicStrategy', () => {
     });
     const aiPlayer = createPlayerState({ hand: [block] });
     const leader = createPlayerState({ totalKm: 500 });
-    const gameState: GameState = { players: [aiPlayer, leader], deck: [], discard: [], turnIndex: 0 };
+    const gameState: GameState = { players: [aiPlayer, leader], deck: [], discard: [], turnIndex: 0, events: [] };
     
     const action = strategy.decideMove(aiPlayer, gameState);
     expect(action).toEqual(newGameAction(PLAY_CARD, 'b1'));
@@ -110,7 +112,7 @@ describe('HeuristicStrategy', () => {
       remediesType: BLOCK_HAZARD_TYPE,
     });
     const aiPlayer = createPlayerState({ hand: [card50] });
-    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0 };
+    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
 
     const action = strategy.decideMove(aiPlayer, gameState);
     expect(action).toEqual(newGameAction(DISCARD_CARD, 'c1'));

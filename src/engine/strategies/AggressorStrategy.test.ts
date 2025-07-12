@@ -27,6 +27,7 @@ const createCard = (overrides: Partial<Card> & { id: string }): Card => ({
 const createPlayerState = (
   overrides: Partial<PlayerState>
 ): PlayerState => ({
+  id: 'test-player',
   hand: [],
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,

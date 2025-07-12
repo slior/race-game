@@ -14,6 +14,7 @@ import { html } from 'lit-html';
 interface ControlsProps {
   selectedCardId: string | null;
   isTargeting: boolean;
+  canPlay: boolean;
 }
 
 /**
@@ -27,11 +28,11 @@ interface ControlsProps {
  * @param props - The properties for rendering the controls.
  * @returns A lit-html template result.
  */
-export function ControlsView({ selectedCardId, isTargeting }: ControlsProps) {
-  const canInteract = selectedCardId !== null && !isTargeting;
+export function ControlsView({ selectedCardId, isTargeting, canPlay }: ControlsProps) {
+  const canDiscard = selectedCardId !== null && !isTargeting;
 
   const onPlayClick = () => {
-    if (!canInteract) return;
+    if (!canPlay) return;
     document.dispatchEvent(
       new CustomEvent('play-card-requested', {
         detail: { cardId: selectedCardId },
@@ -40,7 +41,7 @@ export function ControlsView({ selectedCardId, isTargeting }: ControlsProps) {
   };
 
   const onDiscardClick = () => {
-    if (!canInteract) return;
+    if (!canDiscard) return;
     document.dispatchEvent(
       new CustomEvent('discard-card-requested', {
         detail: { cardId: selectedCardId },
@@ -52,14 +53,14 @@ export function ControlsView({ selectedCardId, isTargeting }: ControlsProps) {
     <div class="controls-view">
       <button
         @click=${onPlayClick}
-        ?disabled=${!canInteract}
+        ?disabled=${!canPlay}
         class="control-button"
       >
         Play Card
       </button>
       <button
         @click=${onDiscardClick}
-        ?disabled=${!canInteract}
+        ?disabled=${!canDiscard}
         class="control-button"
       >
         Discard

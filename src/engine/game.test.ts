@@ -96,13 +96,21 @@ describe('applyCardToPlayer', () => {
   });
 
   it('should add kilometers for a Progress card', () => {
+    const greenLightCard: Card = {
+      id: 'r1',
+      type: REMEDY_TYPE,
+      name: 'Green Light',
+      remediesType: BLOCK_STOP_TYPE,
+    };
     const card: Card = {
       id: 'p1',
       type: PROGRESS_TYPE,
       name: '100km',
       value: 100,
     };
-    const newState = applyCardToPlayer(player, card);
+    // First, play a green light, which is now a prerequisite
+    const stateWithGreenLight = applyCardToPlayer(player, greenLightCard);
+    const newState = applyCardToPlayer(stateWithGreenLight, card);
     expect(newState.totalKm).toBe(100);
     expect(newState.inPlay.progress).toContain(card);
   });
@@ -148,5 +156,49 @@ describe('applyCardToPlayer', () => {
     };
     const newState = applyCardToPlayer(player, card);
     expect(newState.inPlay.immunities).toContain(card);
+  });
+});
+
+describe('Green Light Rule', () => {
+  let player: PlayerState;
+  const greenLightCard: Card = {
+    id: 'r1',
+    type: REMEDY_TYPE,
+    name: 'Green Light',
+    remediesType: BLOCK_STOP_TYPE,
+  };
+  const progressCard: Card = {
+    id: 'p1',
+    type: PROGRESS_TYPE,
+    name: '100km',
+    value: 100,
+  };
+
+  beforeEach(() => {
+    const initialState = createInitialGameState(1, 0);
+    player = initialState.players[0];
+  });
+
+  it('should NOT allow playing a progress card if Green Light has not been played', () => {
+    const stateAfterProgress = applyCardToPlayer(player, progressCard);
+    // Score should not change, and progress card should not be in play
+    expect(stateAfterProgress.totalKm).toBe(0);
+    expect(stateAfterProgress.inPlay.progress).not.toContain(progressCard);
+  });
+
+  it('should allow playing a progress card AFTER a Green Light has been played', () => {
+    // First, play the Green Light
+    const stateWithGreenLight = applyCardToPlayer(player, greenLightCard);
+    expect(stateWithGreenLight.inPlay.progress).toContain(greenLightCard);
+
+    // Then, play the progress card
+    const stateAfterProgress = applyCardToPlayer(
+      stateWithGreenLight,
+      progressCard
+    );
+
+    // Score should now be updated
+    expect(stateAfterProgress.totalKm).toBe(100);
+    expect(stateAfterProgress.inPlay.progress).toContain(progressCard);
   });
 }); 
