@@ -112,4 +112,4 @@ When contributing, please ensure your code adheres to the project's style guidel
 
 ## License
 
-This project is not yet licensed.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
