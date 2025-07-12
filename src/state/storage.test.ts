@@ -5,16 +5,16 @@
  */
 
 import { encodeState, decodeState } from './storage';
-import type { GameState } from '../types';
+import { PROGRESS_TYPE, PROGRESS_50_KM_NAME, type GameState, REMEDY_TYPE, GREEN_LIGHT_NAME } from '../types';
 
 describe('State Storage', () => {
   // A sample, valid GameState object to be used across multiple tests.
   const mockGameState: GameState = {
-    deck: [{ id: 'c1', type: 'Progress', name: 'Go', value: 50 }],
+    deck: [{ id: 'c1', type: PROGRESS_TYPE, name: PROGRESS_50_KM_NAME, value: 50 }],
     discard: [],
     players: [
       {
-        hand: [{ id: 'c2', type: 'Remedy', name: 'Green Light' }],
+        hand: [{ id: 'c2', type: REMEDY_TYPE, name: GREEN_LIGHT_NAME }],
         inPlay: { progress: [], blocks: [], immunities: [] },
         totalKm: 0,
       },
@@ -31,9 +31,7 @@ describe('State Storage', () => {
     const encoded = encodeState(mockGameState);
     const decoded = decodeState(encoded);
 
-    // The decoded object should not be null.
     expect(decoded).not.toBeNull();
-    // The decoded object should be deeply equal to the original.
     expect(decoded).toEqual(mockGameState);
   });
 
@@ -77,16 +75,12 @@ describe('State Storage', () => {
 
     const encoded = encodeState(stateWithSpecialChars);
     
-    // The encoded string must not contain the original unsafe characters.
     expect(encoded).not.toContain('+');
     expect(encoded).not.toContain('/');
 
     const decoded = decodeState(encoded);
-    // The round-trip object must be identical to the original.
     expect(decoded).toEqual(stateWithSpecialChars);
     
-    // To be certain the test is valid, we confirm that the *original*
-    // base64 string (before our replacement) did contain the unsafe characters.
     const originalBase64 = btoa(JSON.stringify(stateWithSpecialChars));
     expect(originalBase64).toMatch(/(\+|\/)/);
   });

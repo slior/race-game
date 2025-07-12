@@ -6,7 +6,13 @@
  * across the game engine.
  */
 
-import type { Card } from '../types';
+import { BLOCK_ACCIDENT_TYPE, BLOCK_FLAT_TIRE_TYPE, BLOCK_OUT_OF_GAS_TYPE, 
+         BLOCK_STOP_TYPE, BLOCK_TYPE, FLAT_TIRE_NAME, IMMUNITY_TYPE,
+         PROGRESS_TYPE, RED_LIGHT_NAME, REMEDY_TYPE, type Card,
+         ACCIDENT_NAME, GREEN_LIGHT_NAME, OUT_OF_GAS_NAME, SPEED_LIMIT_NAME,
+         SPARE_TIRE_NAME, GASOLINE_NAME, REPAIR_NAME,
+         RIGHT_OF_WAY_NAME, PUNCTURE_PROOF_TIRES_NAME, FUEL_TANK_NAME, DRIVING_ACE_NAME,
+         PROGRESS_25_KM_NAME, PROGRESS_50_KM_NAME, PROGRESS_75_KM_NAME, PROGRESS_100_KM_NAME, PROGRESS_200_KM_NAME } from '../types';
 
 /**
  * A factory function to create multiple instances of the same card.
@@ -27,28 +33,28 @@ const createCards = (count: number, card: Omit<Card, 'id'>): Card[] => {
  */
 export const FULL_DECK: Card[] = [
   // --- Progress Cards (Advances player's score) ---
-  ...createCards(10, { type: 'Progress', name: '25km', value: 25 }),
-  ...createCards(10, { type: 'Progress', name: '50km', value: 50 }),
-  ...createCards(10, { type: 'Progress', name: '75km', value: 75 }),
-  ...createCards(12, { type: 'Progress', name: '100km', value: 100 }),
-  ...createCards(4, { type: 'Progress', name: '200km', value: 200 }),
+  ...createCards(10, { type: PROGRESS_TYPE, name: PROGRESS_25_KM_NAME, value: 25 }),
+  ...createCards(10, { type: PROGRESS_TYPE, name: PROGRESS_50_KM_NAME, value: 50 }),
+  ...createCards(10, { type: PROGRESS_TYPE, name: PROGRESS_75_KM_NAME, value: 75 }),
+  ...createCards(12, { type: PROGRESS_TYPE, name: PROGRESS_100_KM_NAME, value: 100 }),
+  ...createCards(4, { type: PROGRESS_TYPE, name: PROGRESS_200_KM_NAME, value: 200 }),
 
   // --- Block Cards (Hinders opponents) ---
-  ...createCards(5, { type: 'Block', name: 'Red Light', blocksType: 'Stop' }),
-  ...createCards(4, { type: 'Block', name: 'Flat Tire', blocksType: 'Hazard' }),
-  ...createCards(4, { type: 'Block', name: 'Out of Gas', blocksType: 'Hazard' }),
-  ...createCards(3, { type: 'Block', name: 'Accident', blocksType: 'Hazard' }),
-  ...createCards(2, { type: 'Block', name: 'Speed Limit', blocksType: 'Stop' }),
+  ...createCards(5, { type: BLOCK_TYPE, name: RED_LIGHT_NAME, blocksType: BLOCK_STOP_TYPE }),
+  ...createCards(4, { type: BLOCK_TYPE, name: FLAT_TIRE_NAME, blocksType: BLOCK_FLAT_TIRE_TYPE }),
+  ...createCards(4, { type: BLOCK_TYPE, name: OUT_OF_GAS_NAME, blocksType: BLOCK_OUT_OF_GAS_TYPE }),
+  ...createCards(3, { type: BLOCK_TYPE, name: ACCIDENT_NAME, blocksType: BLOCK_ACCIDENT_TYPE }),
+  ...createCards(2, { type: BLOCK_TYPE, name: SPEED_LIMIT_NAME, blocksType: BLOCK_STOP_TYPE }),
 
   // --- Remedy Cards (Cancels out Block cards) ---
-  ...createCards(14, { type: 'Remedy', name: 'Green Light', remediesType: 'Stop' }),
-  ...createCards(5, { type: 'Remedy', name: 'Spare Tire', remediesType: 'Hazard' }),
-  ...createCards(5, { type: 'Remedy', name: 'Gasoline', remediesType: 'Hazard' }),
-  ...createCards(2, { type: 'Remedy', name: 'Repair', remediesType: 'Hazard' }),
+  ...createCards(14, { type: REMEDY_TYPE, name: GREEN_LIGHT_NAME, remediesType: BLOCK_STOP_TYPE }),
+  ...createCards(5, { type: REMEDY_TYPE, name: SPARE_TIRE_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE }),
+  ...createCards(5, { type: REMEDY_TYPE, name: GASOLINE_NAME, remediesType: BLOCK_OUT_OF_GAS_TYPE }),
+  ...createCards(2, { type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE }),
 
   // --- Immunity Cards (Provides permanent protection) ---
-  ...createCards(1, { type: 'Immunity', name: 'Right of Way', remediesType: 'Stop' }),
-  ...createCards(1, { type: 'Immunity', name: 'Puncture-Proof Tires', remediesType: 'Hazard' }),
-  ...createCards(1, { type: 'Immunity', name: 'Fuel Tank', remediesType: 'Hazard' }),
-  ...createCards(1, { type: 'Immunity', name: 'Driving Ace', remediesType: 'Hazard' }),
+  ...createCards(1, { type: IMMUNITY_TYPE, name: RIGHT_OF_WAY_NAME, remediesType: BLOCK_STOP_TYPE }),
+  ...createCards(1, { type: IMMUNITY_TYPE, name: PUNCTURE_PROOF_TIRES_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE }),
+  ...createCards(1, { type: IMMUNITY_TYPE, name: FUEL_TANK_NAME, remediesType: BLOCK_OUT_OF_GAS_TYPE }),
+  ...createCards(1, { type: IMMUNITY_TYPE, name: DRIVING_ACE_NAME, remediesType: BLOCK_ACCIDENT_TYPE }),
 ]; 

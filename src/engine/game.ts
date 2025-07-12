@@ -4,8 +4,19 @@
  * and game initialization, adhering to a stateless, immutable architecture.
  */
 
-import type { GameState, PlayerState, Card } from '../types';
 import { createDeck, shuffle, draw } from './deck';
+import {
+  type GameState,
+  type Card,
+  type PlayerState,
+  BLOCK_TYPE,
+  REMEDY_TYPE,
+  IMMUNITY_TYPE,
+  PROGRESS_TYPE,
+  isImmuneTo,
+} from '../types';
+
+const DEFAULT_INITIAL_HAND_SIZE = 5;
 
 /**
  * Creates a new player state object.
@@ -38,22 +49,24 @@ export const applyCardToPlayer = (
   const newPlayerState = JSON.parse(JSON.stringify(player));
 
   switch (card.type) {
-    case 'Progress':
+    case PROGRESS_TYPE:
       if (card.value) {
         newPlayerState.totalKm += card.value;
         newPlayerState.inPlay.progress.push(card);
       }
       break;
-    case 'Block':
-      newPlayerState.inPlay.blocks.push(card);
+    case BLOCK_TYPE:
+      if (!isImmuneTo(player, card)) {
+        newPlayerState.inPlay.blocks.push(card);
+      }
       break;
-    case 'Remedy':
+    case REMEDY_TYPE:
       // Find and remove the corresponding block
       newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
         (block: Card) => block.blocksType !== card.remediesType
       );
       break;
-    case 'Immunity':
+    case IMMUNITY_TYPE:
       newPlayerState.inPlay.immunities.push(card);
       break;
   }
@@ -97,11 +110,9 @@ export const checkWinCondition = (
  */
 export const createInitialGameState = (
   playerCount: number,
-  initialHandSize = 5
+  initialHandSize = DEFAULT_INITIAL_HAND_SIZE
 ): GameState => {
-  // createDeck() returns a fresh, ordered deck of cards.
   const initialDeck = createDeck();
-  // shuffle() returns a new, shuffled array of cards.
   const shuffledDeck = shuffle(initialDeck);
 
   const players: PlayerState[] = [];
@@ -109,7 +120,6 @@ export const createInitialGameState = (
   let workingDiscard: Card[] = [];
 
   for (let i = 0; i < playerCount; i++) {
-    // draw() returns { drawn, newDeck, newDiscard }
     const {
       drawn,
       newDeck,

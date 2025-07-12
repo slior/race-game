@@ -1,41 +1,27 @@
-import type { PlayerState, GameState } from '../../types';
-import type { IAIStrategy, AIAction } from './IAIStrategy';
+import { BLOCK_TYPE, type PlayerState, type GameState, isImmuneTo, isBlocked, getHighestProgressCard, getPlayersOpponents, getLeader } from '../../types';
+import { type IAIStrategy, type GameAction, PLAY_CARD, DISCARD_CARD, newGameAction } from './IAIStrategy';
 
 export class AggressorStrategy implements IAIStrategy {
-  public decideMove(aiPlayer: PlayerState, gameState: GameState): AIAction {
+  public decideMove(aiPlayer: PlayerState, gameState: GameState): GameAction {
     // 1. Block the leader
-    const opponents = gameState.players.filter((p) => p !== aiPlayer);
+    const opponents = getPlayersOpponents(aiPlayer, gameState);
     if (opponents.length > 0) {
-      const leader = opponents.reduce((prev, current) =>
-        prev.totalKm > current.totalKm ? prev : current
-      );
+      const leader = getLeader(opponents);
 
-      const blockCard = aiPlayer.hand.find((card) => card.type === 'Block');
-      if (blockCard && blockCard.blocksType) {
-        const isImmune = leader.inPlay.immunities.some(
-          (immunity) => immunity.remediesType === blockCard.blocksType
-        );
-        if (!isImmune) {
-          return { type: 'PLAY_CARD', cardId: blockCard.id };
-        }
-      }
+      const blockCard = aiPlayer.hand.find((card) => card.type === BLOCK_TYPE);
+      if (blockCard &&  !isImmuneTo(leader,blockCard))
+        return newGameAction(PLAY_CARD, blockCard.id);
     }
 
     // 2. Try to make progress if unable to attack
-    const isBlocked = aiPlayer.inPlay.blocks.length > 0;
-    if (!isBlocked) {
-      const progressCards = aiPlayer.hand.filter(
-        (card) => card.type === 'Progress'
-      );
-      if (progressCards.length > 0) {
-        const highestCard = progressCards.reduce((prev, current) =>
-          (prev.value ?? 0) > (current.value ?? 0) ? prev : current
-        );
-        return { type: 'PLAY_CARD', cardId: highestCard.id };
+    if (!isBlocked(aiPlayer)) {
+      const highestCard = getHighestProgressCard(aiPlayer);
+      if (highestCard) {
+        return newGameAction(PLAY_CARD, highestCard.id);
       }
     }
 
     // 3. Discard as last resort
-    return { type: 'DISCARD_CARD', cardId: aiPlayer.hand[0].id };
+    return newGameAction(DISCARD_CARD, aiPlayer.hand[0].id);
   }
 } 

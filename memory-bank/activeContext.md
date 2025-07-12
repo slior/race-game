@@ -1,6 +1,6 @@
 # Active Context: UI Development
 
-The core game engine, AI, and state persistence layers are now complete and fully tested. The game is functionally playable from end-to-end via state manipulation and URL sharing.
+The core game engine, AI, and state persistence layers are now complete and fully tested. The engine has also been significantly refactored to enforce type safety by using constants instead of string literals, making the system more robust and maintainable.
 
 ## Current Goal
 The focus now shifts to the final major component: the **UI Layer**. This involves creating all the visual elements required for a user to interact with the game in the browser.

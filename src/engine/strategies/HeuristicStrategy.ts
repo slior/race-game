@@ -1,77 +1,73 @@
-import type { Card, PlayerState, GameState } from '../../types';
-import type { IAIStrategy, AIAction } from './IAIStrategy';
+import {
+  type PlayerState, type GameState,
+  getRemedyCardForBlock, isBlocked, getHighestProgressCard, isImmuneTo, BLOCK_TYPE, IMMUNITY_TYPE,
+  hasProgress,
+  GREEN_LIGHT_NAME,
+  getPlayersOpponents,
+  getLeader,
+  hasImmunity
+} from '../../types';
+import {
+  type IAIStrategy,
+  type GameAction,
+  PLAY_CARD,
+  DISCARD_CARD,
+  newGameAction,
+} from './IAIStrategy';
 
 export class HeuristicStrategy implements IAIStrategy {
-  public decideMove(aiPlayer: PlayerState, gameState: GameState): AIAction {
-    const isBlocked = aiPlayer.inPlay.blocks.length > 0;
-
+  public decideMove(aiPlayer: PlayerState, gameState: GameState): GameAction {
     // 1. If blocked, play remedy
-    if (isBlocked) {
+    if (isBlocked(aiPlayer)) {
       const block = aiPlayer.inPlay.blocks[0];
-      const remedy = aiPlayer.hand.find(
-        (card) => card.remediesType === block.blocksType
-      );
+      const remedy = getRemedyCardForBlock(aiPlayer, block);
       if (remedy) {
-        return { type: 'PLAY_CARD', cardId: remedy.id };
+        return newGameAction(PLAY_CARD, remedy.id);
       }
     }
 
     // 2. If go is required, play Green Light
-    if (!isBlocked) {
-        // Special rule: must play green light to start progress
-        const hasMadeProgress = aiPlayer.inPlay.progress.length > 0;
-        const hasGreenLightCardInHand = aiPlayer.hand.some((card) => card.name === 'Green Light');
-        if (!hasMadeProgress && hasGreenLightCardInHand) {
-            const greenLight = aiPlayer.hand.find((card) => card.name === 'Green Light');
-            if (greenLight) {
-                return { type: 'PLAY_CARD', cardId: greenLight.id };
-            }
-        }
-    }
-
-    // 3. Play highest progress card
-    if (!isBlocked) {
-      const progressCards = aiPlayer.hand.filter(
-        (card) => card.type === 'Progress'
+    if (!isBlocked(aiPlayer)) {
+      // Special rule: must play green light to start progress
+      const hasMadeProgress = hasProgress(aiPlayer);
+      const greenLight = aiPlayer.hand.find(
+        (card) => card.name === GREEN_LIGHT_NAME
       );
-      if (progressCards.length > 0) {
-        const highestCard = progressCards.reduce((prev: Card, current: Card) =>
-          (prev.value ?? 0) > (current.value ?? 0) ? prev : current
-        );
-        return { type: 'PLAY_CARD', cardId: highestCard.id };
+      if (!hasMadeProgress && greenLight) {
+        return newGameAction(PLAY_CARD, greenLight.id);
+      }
+      else { //not blocked, but made progress, so play highest progress card
+        const highestCard = getHighestProgressCard(aiPlayer);
+        if (highestCard) {
+          return newGameAction(PLAY_CARD, highestCard.id);
+        }
       }
     }
 
-    // 4. Block lead opponent
-    const opponents = gameState.players.filter((p) => p !== aiPlayer);
+    // 3. Block lead opponent
+    const opponents = getPlayersOpponents(aiPlayer, gameState);
     if (opponents.length > 0) {
-      const leader = opponents.reduce((prev, current) =>
-        prev.totalKm > current.totalKm ? prev : current
-      );
+      const leader = getLeader(opponents);
 
-      const blockCard = aiPlayer.hand.find((card) => card.type === 'Block');
-      if (blockCard && blockCard.blocksType) {
-        const isImmune = leader.inPlay.immunities.some(
-          (immunity) => immunity.remediesType === blockCard.blocksType
-        );
-        if (!isImmune) {
-          return { type: 'PLAY_CARD', cardId: blockCard.id };
-        }
+      const blockCard = aiPlayer.hand.find( //TODO: this finds the *1st* block card in hand. but it's possible to have multiple block cards in hand.
+        (card) => card.type === BLOCK_TYPE
+      );
+      if (blockCard && !isImmuneTo(leader, blockCard)) {
+        return newGameAction(PLAY_CARD, blockCard.id);
       }
     }
 
-    // 5. Play immunity
-    const immunityCard = aiPlayer.hand.find((card) => card.type === 'Immunity');
+    // 4. Play immunity
+    const immunityCard = aiPlayer.hand.find( //TODO: this finds the *1st* immunity card in hand. but it's possible to have multiple immunity cards in hand.
+      (card) => card.type === IMMUNITY_TYPE
+    );
     if (immunityCard && immunityCard.remediesType) {
-      const alreadyHasImmunity = aiPlayer.inPlay.immunities.some(
-        (immunity) => immunity.remediesType === immunityCard.remediesType
-      );
-      if (!alreadyHasImmunity) {
-        return { type: 'PLAY_CARD', cardId: immunityCard.id };
+      if (!hasImmunity(aiPlayer, immunityCard.remediesType)) {
+        return newGameAction(PLAY_CARD, immunityCard.id);
       }
     }
 
-    // 6. Discard
-    return { type: 'DISCARD_CARD', cardId: aiPlayer.hand[0].id };
+    // 5. Discard
+    return newGameAction(DISCARD_CARD, aiPlayer.hand[0].id);
   }
 } 

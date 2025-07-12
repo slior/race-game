@@ -1,12 +1,17 @@
 import { AIPlayer } from './ai';
 import type { GameState, PlayerState } from '../types';
-import type { AIAction, IAIStrategy } from './strategies/IAIStrategy';
+import {
+  type GameAction,
+  type IAIStrategy,
+  DISCARD_CARD,
+  newGameAction,
+} from './strategies/IAIStrategy';
 
 // Mock strategy for testing
 class MockStrategy implements IAIStrategy {
-  decideMove(_aiPlayer: PlayerState, _gameState: GameState): AIAction {
+  decideMove(_aiPlayer: PlayerState, _gameState: GameState): GameAction {
     // Return a predictable action for testing purposes
-    return { type: 'DISCARD_CARD', cardId: 'mock-card' };
+    return newGameAction(DISCARD_CARD, 'mock-card');
   }
 }
 
@@ -33,7 +38,7 @@ describe('AIPlayer', () => {
     const action = aiPlayer.takeTurn(playerState, gameState);
 
     // 3. Assert
-    expect(action).toEqual({ type: 'DISCARD_CARD', cardId: 'mock-card' });
+    expect(action).toEqual(newGameAction(DISCARD_CARD, 'mock-card'));
     expect(spy).toHaveBeenCalledWith(playerState, gameState);
     expect(spy).toHaveBeenCalledTimes(1);
 

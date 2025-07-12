@@ -57,4 +57,10 @@ flowchart TD
 *   **Pattern**:
     *   **Single State Object**: The entire game state is held in a single JavaScript object (`GameState`).
     *   **State Serialization**: On every state change, the `GameState` object is serialized to a Base64-encoded JSON string.
-    *   **URL Persistence**: This string is stored in the browser's URL hash (`window.location.hash`). This makes the game state bookmarkable and shareable. On page load, the application checks for a hash and, if present, decodes it to restore the game. 
+    *   **URL Persistence**: This string is stored in the browser's URL hash (`window.location.hash`). This makes the game state bookmarkable and shareable. On page load, the application checks for a hash and, if present, decodes it to restore the game.
+
+## 4. Core Engine Patterns
+
+*   **Type-Safe Constants**: All magic strings (card names, types, etc.) are defined as exported constants in `src/types.ts`. This ensures consistency and allows for static type checking, preventing typos and runtime errors.
+*   **Helper Functions**: Common logic, such as checking for immunity (`isImmuneTo`) or finding a player's opponents (`getPlayersOpponents`), is extracted into pure, reusable helper functions within `src/types.ts` and `src/engine/game.ts`. This promotes code reuse and simplifies component logic (like AI Strategies).
+*   **Centralized Card Definitions**: The master list of all game cards is defined in `src/engine/cards.ts`, using the aforementioned type-safe constants. This serves as the single source of truth for all card data. 

@@ -11,7 +11,16 @@ import {
   applyCardToPlayer,
 } from './game';
 import * as deck from './deck';
-import type { GameState, Card, PlayerState } from '../types';
+import {
+  type GameState,
+  type Card,
+  type PlayerState,
+  PROGRESS_TYPE,
+  BLOCK_TYPE,
+  REMEDY_TYPE,
+  IMMUNITY_TYPE,
+  BLOCK_STOP_TYPE,
+} from '../types';
 
 // Mock the shuffle function to ensure predictable deck order for tests
 jest.spyOn(deck, 'shuffle').mockImplementation((cards) => cards);
@@ -89,7 +98,7 @@ describe('applyCardToPlayer', () => {
   it('should add kilometers for a Progress card', () => {
     const card: Card = {
       id: 'p1',
-      type: 'Progress',
+      type: PROGRESS_TYPE,
       name: '100km',
       value: 100,
     };
@@ -101,9 +110,9 @@ describe('applyCardToPlayer', () => {
   it('should add a block for a Block card', () => {
     const card: Card = {
       id: 'b1',
-      type: 'Block',
+      type: BLOCK_TYPE,
       name: 'Red Light',
-      blocksType: 'Red Light',
+      blocksType: BLOCK_STOP_TYPE,
     };
     const newState = applyCardToPlayer(player, card);
     expect(newState.inPlay.blocks).toContain(card);
@@ -112,15 +121,15 @@ describe('applyCardToPlayer', () => {
   it('should remove the correct block for a Remedy card', () => {
     const blockCard: Card = {
       id: 'b1',
-      type: 'Block',
+      type: BLOCK_TYPE,
       name: 'Red Light',
-      blocksType: 'Red Light',
+      blocksType: BLOCK_STOP_TYPE,
     };
     const remedyCard: Card = {
       id: 'r1',
-      type: 'Remedy',
+      type: REMEDY_TYPE,
       name: 'Green Light',
-      remediesType: 'Red Light',
+      remediesType: BLOCK_STOP_TYPE,
     };
 
     let stateWithBlock = applyCardToPlayer(player, blockCard);
@@ -133,9 +142,9 @@ describe('applyCardToPlayer', () => {
   it('should add an immunity for an Immunity card', () => {
     const card: Card = {
       id: 'i1',
-      type: 'Immunity',
+      type: IMMUNITY_TYPE,
       name: 'Right of Way',
-      remediesType: 'Red Light',
+      remediesType: BLOCK_STOP_TYPE,
     };
     const newState = applyCardToPlayer(player, card);
     expect(newState.inPlay.immunities).toContain(card);
