@@ -1,13 +1,12 @@
 # Active Context: UI Development
 
-The core game engine, AI, and state persistence layers are now complete and fully tested. The engine has also been significantly refactored to enforce type safety by using constants instead of string literals, making the system more robust and maintainable.
+The core game engine and the initial `BoardView` UI component are complete. The board is implemented using a composable pattern (`BoardView` -> `PlayerView` -> `CardView`) and uses programmatically generated SVGs for card visuals.
 
 ## Current Goal
-The focus now shifts to the final major component: the **UI Layer**. This involves creating all the visual elements required for a user to interact with the game in the browser.
+The focus is to continue building the UI Layer by creating the components needed for player interaction.
 
 ## Next Steps
-1.  **Implement `BoardView`**: Create the component to display each player's name, total distance, and cards in play (blocks and immunities).
-2.  **Implement `HandView`**: Create the component to display the current player's hand of cards.
+1.  **Implement `HandView`**: Create the component to display the current player's hand of cards, allowing them to select a card to play.
+2.  **Implement `Controls`**: Create the UI buttons for primary game actions like "Play Card" and "Discard".
 3.  **Implement `LogView`**: Create a component to show a running list of game events.
-4.  **Implement `Controls`**: Create the UI buttons for primary game actions like "Play Card" and "Discard".
-5.  **Integrate Views**: Assemble all UI components into a main application view that reads from the `GameState` and re-renders on change. 
+4.  **Integrate Views**: Assemble all UI components into the main application view and connect them to the game engine's state update loop. 

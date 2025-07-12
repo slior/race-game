@@ -14,12 +14,15 @@
 *   **State & Storage**: URL-based state serialization (`encodeState`) and deserialization (`decodeState`) is implemented and unit-tested.
 
 ## What's Left to Build
-*   **UI Layer**: All visual components (`BoardView`, `HandView`, etc.).
+*   **UI Layer**:
+    *   `HandView`: The component for the current player's hand.
+    *   `LogView`: The component for the game event log.
+    *   `Controls`: UI buttons for game actions.
 *   **Documentation**: User and developer guides.
 
 ## Current Status
-*   **Overall**: The core game engine and state persistence layers are complete and stable.
-*   **Next**: Implement the UI Layer to render the game state and handle user input.
+*   **Overall**: The core game engine and state persistence layers are complete and stable. The initial UI `BoardView` is now implemented.
+*   **Next**: Implement the remaining UI Layer components.
 
 ## Known Issues
 *   None. The initial setup is stable. 

@@ -1,0 +1,72 @@
+/*
+ * src/ui/ui.css
+ *
+ * This file contains the central stylesheet for the RACE card game's UI.
+ * It defines styles for all the major UI components, including the game
+ * board, player views, and cards. It uses CSS variables for theming and
+ * flexbox for layout.
+ */
+
+:root {
+  --board-bg: #f0f0f0;
+  --player-bg: #ffffff;
+  --player-border: #cccccc;
+  --card-text-color: #ffffff;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--board-bg);
+  margin: 0;
+  padding: 1rem;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.player {
+  background-color: var(--player-bg);
+  border: 1px solid var(--player-border);
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.player-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.player-info span {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.cards-in-play {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-svg {
+  width: 60px;
+  height: 84px;
+}
+
+.card-svg text {
+  font-size: 10px;
+  font-family: var(--font-family);
+  fill: var(--card-text-color);
+  font-weight: bold;
+} 
