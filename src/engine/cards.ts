@@ -50,7 +50,7 @@ export const FULL_DECK: Card[] = [
   ...createCards(14, { type: REMEDY_TYPE, name: GREEN_LIGHT_NAME, remediesType: BLOCK_STOP_TYPE }),
   ...createCards(5, { type: REMEDY_TYPE, name: SPARE_TIRE_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE }),
   ...createCards(5, { type: REMEDY_TYPE, name: GASOLINE_NAME, remediesType: BLOCK_OUT_OF_GAS_TYPE }),
-  ...createCards(2, { type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE }),
+  ...createCards(2, { type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_ACCIDENT_TYPE }),
 
   // --- Immunity Cards (Provides permanent protection) ---
   ...createCards(1, { type: IMMUNITY_TYPE, name: RIGHT_OF_WAY_NAME, remediesType: BLOCK_STOP_TYPE }),

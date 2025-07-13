@@ -19,7 +19,11 @@ import {
   SPARE_TIRE_NAME,
   BLOCK_FLAT_TIRE_TYPE,
   FLAT_TIRE_NAME,
+  BLOCK_ACCIDENT_TYPE,
+  REPAIR_NAME,
+  ACCIDENT_NAME,
 } from './types';
+// import { FULL_DECK } from './engine/cards';
 
 // Helper to create a mock PlayerState
 const createMockPlayer = (overrides: Partial<PlayerState> & { id: string }): PlayerState => ({
@@ -48,7 +52,8 @@ describe('isCardPlayable', () => {
   // Use a non-special remedy for general remedy tests
   const flatTireCard: Card = { id: 'c6', type: BLOCK_TYPE, name: FLAT_TIRE_NAME, blocksType: BLOCK_FLAT_TIRE_TYPE };
   const spareTireRemedy: Card = { id: 'c7', type: REMEDY_TYPE, name: SPARE_TIRE_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE };
-
+  const accidentCard: Card = { id: 'c8', type: BLOCK_TYPE, name: ACCIDENT_NAME, blocksType: BLOCK_ACCIDENT_TYPE };
+  const repairCard: Card = { id: 'c9', type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_ACCIDENT_TYPE };
 
   it('should return false for a progress card if green light is not played', () => {
     const player = createMockPlayer({ id: 'p1' });
@@ -72,6 +77,12 @@ describe('isCardPlayable', () => {
     const player = createMockPlayer({ id: 'p1', inPlay: { progress: [], blocks: [flatTireCard], immunities: [] } });
     const gameState = createMockGameState([player]);
     expect(isCardPlayable(spareTireRemedy, gameState)).toBe(true);
+  });
+
+  it('should return true for a repair card if an accident block IS active', () => {
+    const player = createMockPlayer({ id: 'p1', inPlay: { progress: [], blocks: [accidentCard], immunities: [] } });
+    const gameState = createMockGameState([player]);
+    expect(isCardPlayable(repairCard, gameState)).toBe(true);
   });
 
   it('should return false for a block card if the target is immune', () => {

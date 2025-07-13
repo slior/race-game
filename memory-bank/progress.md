@@ -26,6 +26,7 @@
 *   **Block Card Playability**: Fixed a UI bug where the "Play Card" button was incorrectly disabled for block cards.
 *   **Progress While Blocked**: Fixed a bug that allowed players to play progress cards while under the effect of a block card.
 *   **Test Suite Mocks**: Updated all mock objects in the unit test suites to include the new `isReady` property on the `PlayerState` interface, resolving all test failures.
+*   **Repair Card Logic**: Fixed a bug where the "Repair" card was misconfigured to fix a "Flat Tire" instead of an "Accident", preventing players from playing it correctly.
 
 ## Current Status
 *   **Overall**: The game is feature-complete and highly stable after a series of significant bug fixes. The core engine, state persistence, and a fully interactive UI are all implemented and integrated.
