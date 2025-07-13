@@ -93,8 +93,8 @@ body {
 }
 
 .card-svg {
-  width: 60px;
-  height: 84px;
+  width: 70px;
+  height: 98px;
   outline: 1px solid rgba(0, 0, 0, 0.3); /* Default border for card separation */
   cursor: pointer;
 }
@@ -121,7 +121,7 @@ body {
 
 .hand-container .card-wrapper {
   transition: transform 0.2s ease-in-out, margin 0.2s ease-in-out;
-  margin-left: -40px; /* Overlap cards */
+  margin-left: -50px; /* Overlap cards */
   cursor: pointer;
 }
 
@@ -131,8 +131,8 @@ body {
 
 .hand-container .card-wrapper:hover {
   transform: translateY(-20px) scale(1.05);
-  margin-right: 10px;
-  margin-left: -30px;
+  margin-right: 15px;
+  margin-left: -35px;
 }
 
 .hand-container .card-wrapper.selected {
