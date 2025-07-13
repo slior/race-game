@@ -7,11 +7,12 @@
  * This approach provides maximum control over the card's appearance.
  */
 
-import { html, type TemplateResult } from 'lit-html';
+import { svg, type TemplateResult } from 'lit-html';
 import {
   BLOCK_TYPE,
   REMEDY_TYPE,
   IMMUNITY_TYPE,
+  PROGRESS_TYPE,
   type Card as CardModel,
 } from '../types';
 
@@ -23,6 +24,8 @@ import {
  */
 function getCardColor(card: CardModel): string {
   switch (card.type) {
+    case PROGRESS_TYPE:
+      return '#6c757d'; // Dark grey for progress
     case BLOCK_TYPE:
       return '#c0392b'; // Red for hazards/blocks
     case REMEDY_TYPE:
@@ -42,17 +45,58 @@ function getCardColor(card: CardModel): string {
  */
 function getCardIcon(card: CardModel): TemplateResult {
   switch (card.type) {
+    case PROGRESS_TYPE:
+      // A road icon
+      return svg`
+        <g transform="translate(30, 10) scale(0.8)">
+          <path d="M 0 0 V 60" stroke-width="4" stroke-dasharray="8" stroke="white" />
+        </g>
+      `;
     case BLOCK_TYPE:
-      // Simple triangle shape for blocks
-      return html`<path d="M 30 10 L 50 45 L 10 45 Z" fill-opacity="0.5" />`;
+      // A stop sign icon
+      return svg`
+        <g transform="translate(30, 20) scale(1.2)">
+          <path
+            d="M -8 2 L 8 2 L 18 12 L 18 28 L 8 38 L -8 38 L -18 28 L -18 12 Z"
+            fill="#FF0000"
+            stroke="white"
+            stroke-width="2"
+          />
+          <text x="0" y="24" text-anchor="middle" font-size="12" fill="white">STOP</text>
+        </g>
+      `;
     case REMEDY_TYPE:
-      // Simple plus shape for remedies
-      return html`<path d="M 20 30 H 40 M 30 20 V 40" stroke="white" stroke-width="4" stroke-opacity="0.5" />`;
+      // A wrench icon
+      return svg`
+        <g transform="translate(30, 25) scale(1.4) rotate(45)">
+          <path
+            d="M 0 5 C -3 5 -5 7 -5 10 L -5 15 L 0 15 L 0 12 L 3 12 L 3 28 L 0 28 L 0 25 L -5 25 L -5 30 C -5 33 -3 35 0 35 L 5 35 L 5 30 L 2 30 L 2 10 L 5 10 L 5 5 Z"
+            fill="white"
+            fill-opacity="0.7"
+          />
+        </g>
+      `;
     case IMMUNITY_TYPE:
-      // Simple shield shape for immunities
-      return html`<path d="M 15 15 H 45 V 35 C 45 45 30 55 30 55 C 30 55 15 45 15 35 V 15 Z" fill-opacity="0.5" />`;
+      // An improved shield icon
+      return svg`
+        <g transform="translate(30, 15) scale(1.2)">
+          <path
+            d="M -15 5 H 15 V 25 C 15 35 0 45 0 45 C 0 45 -15 35 -15 25 V 5 Z"
+            fill="white"
+            fill-opacity="0.6"
+            stroke="white"
+            stroke-width="2"
+          />
+          <path
+            d="M 0 15 L 0 35 M -10 25 L 10 25"
+            stroke="#3498db"
+            stroke-width="4"
+            stroke-opacity="0.8"
+          />
+        </g>
+      `;
     default:
-      return html``; // No icon for other card types
+      return svg``; // No icon for other card types
   }
 }
 
@@ -64,7 +108,7 @@ function getCardIcon(card: CardModel): TemplateResult {
  * @returns A lit-html TemplateResult containing the SVG markup.
  */
 export function renderCard(card: CardModel): TemplateResult {
-  return html`
+  return svg`
     <svg class="card-svg" viewBox="0 0 60 84">
       <rect x="0" y="0" width="60" height="84" rx="4" ry="4" fill="${getCardColor(card)}" />
       ${getCardIcon(card)}

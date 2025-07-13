@@ -96,6 +96,7 @@ body {
   width: 60px;
   height: 84px;
   outline: 1px solid rgba(0, 0, 0, 0.3); /* Default border for card separation */
+  cursor: pointer;
 }
 
 .card-svg text {
@@ -121,6 +122,7 @@ body {
 .hand-container .card-wrapper {
   transition: transform 0.2s ease-in-out, margin 0.2s ease-in-out;
   margin-left: -40px; /* Overlap cards */
+  cursor: pointer;
 }
 
 .hand-container .card-wrapper:first-child {
@@ -209,12 +211,12 @@ body {
   border: none;
   background-color: #3498db;
   color: white;
-  cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .control-button:hover:not(:disabled) {
   background-color: #2980b9;
+  cursor: pointer;
 }
 
 .control-button:disabled {
