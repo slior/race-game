@@ -201,4 +201,35 @@ describe('Green Light Rule', () => {
     expect(stateAfterProgress.totalKm).toBe(100);
     expect(stateAfterProgress.inPlay.progress).toContain(progressCard);
   });
+});
+
+describe('Complex Rule Interactions', () => {
+  let player: PlayerState;
+  const greenLightCard: Card = {
+    id: 'r1',
+    type: REMEDY_TYPE,
+    name: 'Green Light',
+    remediesType: BLOCK_STOP_TYPE,
+  };
+  const redLightCard: Card = {
+    id: 'b1',
+    type: BLOCK_TYPE,
+    name: 'Red Light',
+    blocksType: BLOCK_STOP_TYPE,
+  };
+
+  beforeEach(() => {
+    const initialState = createInitialGameState(1, 0);
+    // Player has a green light in play from a previous turn
+    player = applyCardToPlayer(initialState.players[0], greenLightCard);
+    expect(player.inPlay.progress).toContain(greenLightCard);
+    expect(player.inPlay.blocks).toHaveLength(0);
+  });
+
+  it('should apply a Red Light block to a player who already has a Green Light in play', () => {
+    const finalState = applyCardToPlayer(player, redLightCard);
+    // The Red Light should now be in the player's blocks array
+    expect(finalState.inPlay.blocks).toHaveLength(1);
+    expect(finalState.inPlay.blocks[0]).toBe(redLightCard);
+  });
 }); 
