@@ -14,12 +14,14 @@ flowchart TD
             HandView
             LogView
             ControlsView
+            GameSettingsView
         end
 
         App --> PlayerView
         App -- Renders for current player --> HandView
         App --> LogView
         App --> ControlsView
+        App --> GameSettingsView
     end
 
     subgraph Game Engine Layer
@@ -53,6 +55,7 @@ flowchart TD
     *   `HandView`: Displays the current player's cards. It is now rendered directly below the current player's `PlayerView`.
     *   `LogView`: A running log of game events.
     *   `ControlsView`: UI buttons for game actions.
+    *   `GameSettingsView`: A new component that allows the user to configure the number of players and start a new game.
 
 ## 2. Game Engine Layer
 

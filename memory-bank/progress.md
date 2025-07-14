@@ -15,6 +15,7 @@
 *   **UI Layer**: The entire UI layer is now implemented. This includes the `PlayerView`, `HandView`, `LogView`, and `ControlsView`. A central `App` component manages state and orchestrates all UI rendering and interactions, including targeting logic for block cards.
 *   **UI Enhancements**: The UI has been improved to provide clearer state visibility. A "go" indicator now appears on a player's view when they can play progress cards. The layout has been updated to show the current player's hand directly beneath their player area, creating a more intuitive flow.
 *   **Rule Enforcement**: The game's core rules are now robustly enforced by a central `isCardPlayable` helper function and have been validated with an extensive test suite.
+*   **Configurable Player Count**: The game now supports a configurable player count (2-4 players). This can be set via a new UI input or by using the `playerCount` URL query parameter.
 
 ## What's Left to Build
 *   **Documentation**: User and developer guides.

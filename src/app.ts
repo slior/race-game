@@ -25,12 +25,21 @@ class App {
   private state: GameState;
   private selectedCardId: string | null = null;
   private rootElement: HTMLElement;
+//   private initialPlayerCount: number;
 
   constructor(rootElement: HTMLElement, playerCount: number) {
     this.rootElement = rootElement;
+    // this.initialPlayerCount = playerCount;
     this.state = createInitialGameState(playerCount);
     this.state.events = [];
     this.addLog('system', `Game started with ${playerCount} players.`);
+
+    // Log if player count was set from URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('playerCount')) {
+      this.addLog('system', `Player count set to ${playerCount} from URL parameter.`);
+    }
+
     this.attachEventListeners();
     this.render();
   }
@@ -44,6 +53,32 @@ class App {
     document.addEventListener('play-card-requested', this.handlePlayCardRequest.bind(this));
     document.addEventListener('discard-card-requested', this.handleDiscardCardRequest.bind(this));
     document.addEventListener('player-selected-as-target', this.handleTargetSelected.bind(this));
+    // We will attach the new game handler in the render method, as it's tied to a specific button
+  }
+
+  private handleNewGameRequest() {
+    const playerCountInput = this.rootElement.querySelector('#player-count-input') as HTMLInputElement;
+    if (!playerCountInput) return;
+
+    const newPlayerCount = parseInt(playerCountInput.value, 10);
+    if (isNaN(newPlayerCount) || newPlayerCount < 2 || newPlayerCount > 4) {
+      alert('Invalid number of players. Please enter a number between 2 and 4.');
+      return;
+    }
+
+    // Warn user if a game is in progress (more than just the initial system messages)
+    if (this.state.events.length > 2) {
+      const confirmed = window.confirm('Are you sure you want to start a new game? Your current progress will be lost.');
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    // Re-initialize the game state
+    this.state = createInitialGameState(newPlayerCount);
+    this.addLog('system', `New game started with ${newPlayerCount} players.`);
+    this.selectedCardId = null;
+    this.render();
   }
 
   private handlePlayCardRequest() {
@@ -180,6 +215,19 @@ class App {
         </div>
         <div class="bottom-section">
           <div class="left-pane">
+            <div class="game-settings">
+              <label for="player-count-input">Number of Players:</label>
+              <input
+                type="number"
+                id="player-count-input"
+                min="2"
+                max="4"
+                .value=${this.state.players.length.toString()}
+              />
+              <button @click=${() => this.handleNewGameRequest()}>
+                Start New Game
+              </button>
+            </div>
             ${LogView(this.state.events)}
           </div>
           <div class="right-pane">

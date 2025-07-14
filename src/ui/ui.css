@@ -272,6 +272,40 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  padding-right: 10px;
+}
+
+.game-settings {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+}
+
+.game-settings label {
+  font-weight: bold;
+}
+
+.game-settings input {
+  width: 50px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.game-settings button {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
+
+.game-settings button:hover {
+  background-color: #d0d0d0;
 }
 
 .right-pane {

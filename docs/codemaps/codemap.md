@@ -12,6 +12,8 @@ This directory contains the main entry point for the application, core data type
 
 ## Files
 
+- [`main.ts`](../../src/main.ts): The main entry point for the application. It initializes the `App` component and handles the `playerCount` URL parameter to configure the number of players for a new game.
+- [`app.ts`](../../src/app.ts): The top-level application component that orchestrates the UI and game state.
 - [`types.ts`](../../src/types.ts): Defines the core data structures (`Card`, `PlayerState`, `GameState`) which include unique IDs for players. It also contains a comprehensive set of **exported constants** for all card types and names. Crucially, this file houses the game's most important pure helper functions, including **`isCardPlayable`**, which serves as the single source of truth for all game rule enforcement.
 
 ## Architecture
