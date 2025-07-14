@@ -25,11 +25,19 @@ class App {
   private state: GameState;
   private selectedCardId: string | null = null;
   private rootElement: HTMLElement;
-//   private initialPlayerCount: number;
+
+    /**
+     * Checks if the provided player count is within the valid range (2-4).
+     * @param playerCount - The number of players to validate.
+     * @returns True if playerCount is between 2 and 4 (inclusive), otherwise false.
+     */
+    static isValidPlayerCount(playerCount: number): boolean {
+        return playerCount >= 2 && playerCount <= 4;
+    }
 
   constructor(rootElement: HTMLElement, playerCount: number) {
     this.rootElement = rootElement;
-    // this.initialPlayerCount = playerCount;
+    
     this.state = createInitialGameState(playerCount);
     this.state.events = [];
     this.addLog('system', `Game started with ${playerCount} players.`);
@@ -61,7 +69,7 @@ class App {
     if (!playerCountInput) return;
 
     const newPlayerCount = parseInt(playerCountInput.value, 10);
-    if (isNaN(newPlayerCount) || newPlayerCount < 2 || newPlayerCount > 4) {
+    if (isNaN(newPlayerCount) || !App.isValidPlayerCount(newPlayerCount)) {
       alert('Invalid number of players. Please enter a number between 2 and 4.');
       return;
     }

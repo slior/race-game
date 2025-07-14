@@ -22,7 +22,7 @@ let playerCount = 2; // Default player count
 
 if (playerCountParam) {
   const parsedPlayerCount = parseInt(playerCountParam, 10);
-  if (!isNaN(parsedPlayerCount) && parsedPlayerCount >= 2 && parsedPlayerCount <= 4) {
+  if (!isNaN(parsedPlayerCount) && App.isValidPlayerCount(parsedPlayerCount)) {
     playerCount = parsedPlayerCount;
   }
 }
