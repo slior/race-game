@@ -2,7 +2,7 @@
 
 A web-based, multiplayer card game where the goal is to be the first to complete a 1000 km road trip. This project is a digital adaptation of the card game "RACE" by Shafir Games.
 
-This is a turn-based game for 2-4 players. The game involves drawing and playing cards, which can be progress, block, remedy, or immunity cards. The entire game state is stored in the URL, allowing you to share your game or resume it at any time just by sharing the link.
+This is a turn-based game for 2-4 players. The game involves drawing and playing cards, which can be progress, block, remedy, or immunity cards. The number of players can be configured from the UI. The entire game state is stored in the URL, allowing you to share your game or resume it at any time just by sharing the link.
 
 ## Table of Contents
 
@@ -39,9 +39,9 @@ For a full breakdown of the rules, components, and project architecture, please 
 
 ## Features
 
-- **Multiplayer Gameplay**: Play with 2-4 players.
+- **Configurable Multiplayer**: Play with 2, 3, or 4 players. The number of players can be set easily through the UI.
 - **AI Opponents**: Includes a basic AI with multiple strategies to play against.
-- **Shareable State**: The entire game state is encoded in the URL hash. Share the URL to continue a game with friends.
+- **Shareable State**: The entire game state is encoded in the URL. Share the URL to continue a game with friends, or even specify the number of players directly in the URL (e.g., `?playerCount=3`).
 - **Responsive UI**: A clean and simple interface that works on modern web browsers.
 
 ## Tech Stack
