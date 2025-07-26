@@ -9,19 +9,25 @@
 *   The Jest testing environment is fully configured and operational.
 *   The core `Deck` manager (`src/engine/deck.ts`) is implemented and fully unit-tested. This includes logic for creating, shuffling, and drawing cards.
 *   The core Player and Turn managers (`src/engine/game.ts`) are implemented and fully unit-tested. This includes logic for creating a game state, applying card effects, advancing turns, and checking win conditions.
-*   **A basic AI opponent is implemented (`src/engine/ai.ts`) using a Strategy pattern.** This includes a balanced `HeuristicStrategy` and an `AggressorStrategy`, both of which are fully unit-tested.
+*   **A basic AI opponent is implemented (`src/engine/strategies`) using a Strategy pattern.** This includes a balanced `HeuristicStrategy` and an `AggressorStrategy`, both of which are fully unit-tested.
 *   **The core engine has been refactored to use type-safe constants and helper functions**, eliminating magic strings and improving maintainability.
 *   **State & Storage**: URL-based state serialization (`encodeState`) and deserialization (`decodeState`) is implemented and unit-tested.
 *   **UI Layer**: The entire UI layer is now implemented. This includes the `PlayerView`, `HandView`, `LogView`, and `ControlsView`. A central `App` component manages state and orchestrates all UI rendering and interactions, including targeting logic for block cards.
 *   **UI Enhancements**: The UI has been improved to provide clearer state visibility. A "go" indicator now appears on a player's view when they can play progress cards. The layout has been updated to show the current player's hand directly beneath their player area, creating a more intuitive flow.
 *   **Rule Enforcement**: The game's core rules are now robustly enforced by a central `isCardPlayable` helper function and have been validated with an extensive test suite.
 *   **Configurable Player Count**: The game now supports a configurable player count (2-4 players). This can be set via a new UI input or by using the `playerCount` URL query parameter.
+*   **Configurable AI Players**: Players can be configured as "Human" or one of several AI strategies ("Heuristic", "Aggressor").
+*   **Observable AI Turns**: AI players automatically take their turns with asynchronous delays and visual feedback, making their actions easy for a human to follow. The game can be played with all AI players, running by itself until a winner is found.
 
 ## What's Left to Build
 *   **Documentation**: User and developer guides.
-*   **Testing**: End-to-end tests for the complete user flow.
+*   **Testing**: End-to-end tests for the complete user flow, especially with multiple AI players interacting.
+*   **AI Strategy Refinement**: The current AI strategies are functional but could be made more sophisticated.
 
 ## Recent Bug Fixes
+*   **AI Infinite Hand Bug**: Fixed a bug in the `AggressorStrategy` where the AI would fail to make a valid move and never discard, causing its hand to grow indefinitely. The strategy was refactored to use the central `isCardPlayable` function to ensure its chosen move is always valid.
+*   **AI Race Condition**: Fixed a critical bug where the game would stall in all-AI matches. The root cause was a race condition in the previous event-based turn management. The system was completely refactored to use a central, asynchronous `gameLoop` that gracefully handles both human and AI turns, eliminating the bug and improving overall stability.
+*   **Invalid AI Moves**: Fixed a bug where AI players could attempt to play invalid cards (e.g., a block card against an immune opponent), causing the game to stall. The AI strategies now use the central `isCardPlayable` function to ensure all chosen moves are valid before execution.
 *   **Green Light Prerequisite**: Fixed a bug where the rule requiring a "Green Light" before playing progress cards was not enforced.
 *   **Initial Green Light Play**: Fixed a bug that prevented players from playing their initial "Green Light" card if they were not blocked.
 *   **Block Card Playability**: Fixed a UI bug where the "Play Card" button was incorrectly disabled for block cards.
@@ -30,8 +36,8 @@
 *   **Repair Card Logic**: Fixed a bug where the "Repair" card was misconfigured to fix a "Flat Tire" instead of an "Accident", preventing players from playing it correctly.
 
 ## Current Status
-*   **Overall**: The game is feature-complete and highly stable after a series of significant bug fixes. The core engine, state persistence, and a fully interactive UI are all implemented and integrated.
-*   **Next**: Write comprehensive documentation and consider end-to-end testing.
+*   **Overall**: The game is feature-complete and the core engine is now highly stable after a major architectural refactoring to fix a critical race condition. The `gameLoop` pattern provides a robust foundation for turn management. The AI is also more robust and makes more intelligent, valid moves.
+*   **Next**: Write comprehensive end-to-end tests to validate the full game loop with human and AI players.
 
 ## Known Issues
 *   None. The application is stable. 

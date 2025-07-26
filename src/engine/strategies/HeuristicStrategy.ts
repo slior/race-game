@@ -53,7 +53,7 @@ export class HeuristicStrategy implements IAIStrategy {
         (card) => card.type === BLOCK_TYPE
       );
       if (blockCard && !isImmuneTo(leader, blockCard)) {
-        return newGameAction(PLAY_CARD, blockCard.id);
+        return newGameAction(PLAY_CARD, blockCard.id, leader.id);
       }
     }
 

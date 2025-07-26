@@ -31,7 +31,7 @@ export function renderBoard(
     <div class="board">
       ${players.map((player, index) => {
         const isTargetable =
-          actionState?.type === 'awaiting-target' && index !== turnIndex;
+          actionState && index !== turnIndex ? true : false;
         const isCurrent = index === turnIndex;
         return renderPlayer(player, index, isTargetable, isCurrent);
       })}

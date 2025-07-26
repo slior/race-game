@@ -1,9 +1,8 @@
-/*
- * src/types.test.ts
+/**
+ * @file src/types.test.ts
  *
- * This file contains unit tests for the helper functions defined in src/types.ts.
- * It focuses on ensuring the correctness of pure functions that perform
- * calculations or checks based on the game state.
+ * This file contains unit tests for the type guard functions and other
+ * helper utilities defined in `types.ts`.
  */
 import {
   isCardPlayable,
@@ -25,12 +24,17 @@ import {
 } from './types';
 // import { FULL_DECK } from './engine/cards';
 
-// Helper to create a mock PlayerState
-const createMockPlayer = (overrides: Partial<PlayerState> & { id: string }): PlayerState => ({
+// Helper to create a mock player
+const createMockPlayer = (
+  overrides: Partial<PlayerState> & { id: string }
+): PlayerState => ({
   hand: [],
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
   isReady: false,
+  aiStrategy: null,
+  isThinking: false,
+  isTargeted: false,
   ...overrides,
 });
 
@@ -89,7 +93,7 @@ describe('isCardPlayable', () => {
     const player1 = createMockPlayer({ id: 'p1' });
     const player2 = createMockPlayer({ id: 'p2', inPlay: { progress: [], blocks: [], immunities: [immunityCard] } });
     const gameState = createMockGameState([player1, player2]);
-    gameState.actionState = { type: 'awaiting-target', cardId: 'c3', targetId: 'p2' };
+    gameState.actionState = { /*type: 'awaiting-target',*/ cardId: 'c3', targetId: 'p2' };
     expect(isCardPlayable(stopCard, gameState)).toBe(false);
   });
 
@@ -97,7 +101,7 @@ describe('isCardPlayable', () => {
     const player1 = createMockPlayer({ id: 'p1' });
     const player2 = createMockPlayer({ id: 'p2' });
     const gameState = createMockGameState([player1, player2]);
-    gameState.actionState = { type: 'awaiting-target', cardId: 'c3', targetId: 'p2' };
+    gameState.actionState = { /*type: 'awaiting-target',*/ cardId: 'c3', targetId: 'p2' };
     expect(isCardPlayable(stopCard, gameState)).toBe(true);
   });
 
@@ -105,7 +109,7 @@ describe('isCardPlayable', () => {
     const player = createMockPlayer({ id: 'p1' });
     const gameState = createMockGameState([player]);
     // No actionState.targetId
-    gameState.actionState = { type: 'awaiting-target', cardId: 'c3' };
+    gameState.actionState = { /*type: 'awaiting-target',*/ cardId: 'c3' };
     expect(isCardPlayable(stopCard, gameState)).toBe(false);
   });
   
@@ -139,4 +143,5 @@ describe('isCardPlayable', () => {
     const gameState = createMockGameState([player]);
     expect(isCardPlayable(progressCard, gameState)).toBe(false);
   });
-}); 
+});
+ 

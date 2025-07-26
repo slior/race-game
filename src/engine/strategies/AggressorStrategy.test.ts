@@ -9,6 +9,7 @@ import {
   IMMUNITY_TYPE,
   BLOCK_FLAT_TIRE_TYPE,
   PROGRESS_100_KM_NAME,
+  GREEN_LIGHT_NAME,
 } from '../../types';
 import { AggressorStrategy } from './AggressorStrategy';
 import {
@@ -32,6 +33,9 @@ const createPlayerState = (
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
   isReady: false,
+  aiStrategy: 'Aggressor',
+  isThinking: false,
+  isTargeted: false,
   ...overrides,
 });
 
@@ -51,24 +55,34 @@ describe('AggressorStrategy', () => {
     });
     const progress = createCard({ id: 'p1', value: 100 });
     const aiPlayer = createPlayerState({ hand: [progress, block] });
-    const leader = createPlayerState({ totalKm: 500 });
+    const leader = createPlayerState({ id: 'leader', totalKm: 500 });
     const gameState: GameState = {
       players: [aiPlayer, leader],
+      turnIndex: 0,
       deck: [],
       discard: [],
-      turnIndex: 0,
       events: [],
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(PLAY_CARD, 'b1'));
+    expect(action).toEqual(newGameAction(PLAY_CARD, 'b1', 'leader'));
   });
 
   it('makes progress if it cannot attack', () => {
     const progress = createCard({ id: 'p1', value: 100 });
-    const aiPlayer = createPlayerState({ hand: [progress] });
+    const greenLight = createCard({
+      id: 'gl1',
+      type: REMEDY_TYPE,
+      name: GREEN_LIGHT_NAME,
+      remediesType: BLOCK_STOP_TYPE,
+    });
+    const aiPlayer = createPlayerState({
+      hand: [progress],
+      inPlay: { ...createPlayerState({}).inPlay, progress: [greenLight] },
+    });
     // Leader is immune
     const leader = createPlayerState({
+      id: 'leader-immune',
       totalKm: 500,
       inPlay: {
         ...createPlayerState({}).inPlay,

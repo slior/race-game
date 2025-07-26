@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "test": "jest",
+    "test": "jest --verbose",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },

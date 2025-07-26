@@ -20,5 +20,6 @@ This is a casual game for 2-4 players, suitable for ages 8 and up. It's designed
 *   **Block Cards**: These are played on opponents to impede their progress (e.g., "Red Light", "Flat Tire"). A player cannot play progress cards while blocked.
 *   **Remedy Cards**: These are used to cancel out a block card that an opponent has played on you.
 *   **Immunity Cards**: These are special cards that provide permanent protection against a specific type of block.
+*   **AI Players**: Players can be configured to be controlled by the computer. Different AI "personalities" (e.g., Aggressor, Heuristic) can be chosen, and their moves are automatically played with visual feedback.
 *   **Green Light Rule**: A player must play a "Green Light" remedy card before they can play any progress cards.
 *   **State Sharing**: The entire game state is encoded in the URL, allowing a game to be shared or resumed simply by sharing the link. 

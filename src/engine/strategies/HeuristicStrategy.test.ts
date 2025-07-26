@@ -34,6 +34,9 @@ const createPlayerState = (
   inPlay: { progress: [], blocks: [], immunities: [] },
   totalKm: 0,
   isReady: false,
+  aiStrategy: 'Heuristic',
+  isThinking: false,
+  isTargeted: false,
   ...overrides,
 });
 
@@ -91,18 +94,24 @@ describe('HeuristicStrategy', () => {
   });
 
   it('chooses to block the leader if unable to move', () => {
-    const block = createCard({
+    const blockCard = createCard({
       id: 'b1',
       type: BLOCK_TYPE,
       name: 'Red Light',
       blocksType: BLOCK_STOP_TYPE,
     });
-    const aiPlayer = createPlayerState({ hand: [block] });
-    const leader = createPlayerState({ totalKm: 500 });
-    const gameState: GameState = { players: [aiPlayer, leader], deck: [], discard: [], turnIndex: 0, events: [] };
-    
+    const aiPlayer = createPlayerState({ id: 'ai-player', hand: [blockCard] });
+    const leader = createPlayerState({ id: 'leader', totalKm: 500 });
+    const gameState: GameState = {
+      players: [aiPlayer, leader],
+      turnIndex: 0,
+      deck: [],
+      discard: [],
+      events: [],
+    };
+
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(PLAY_CARD, 'b1'));
+    expect(action).toEqual(newGameAction(PLAY_CARD, 'b1', 'leader'));
   });
 
   it('chooses to discard a card as a last resort', () => {

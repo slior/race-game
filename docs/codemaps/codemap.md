@@ -6,7 +6,7 @@ This directory contains the main entry point for the application, core data type
 
 ## Child Components
 
-- [engine](./engine/codemap.md): Contains the core game logic, built on pure functions. It manages game state, player actions, the card deck, and interchangeable AI opponents.
+- [engine](./engine/codemap.md): Contains the core, stateless game logic. It is built entirely on pure functions that take the current game state and return a new state. It manages player actions (`playCard`), the card deck, and provides a factory for creating AI opponents.
 - [ui](./ui/codemap.md): Responsible for rendering the user interface, displaying game state to the user, and handling user input.
 - [state](./state/codemap.md): Responsible for game state persistence, providing functions to save and load the game by encoding the state into a URL-safe string.
 

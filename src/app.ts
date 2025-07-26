@@ -13,8 +13,16 @@ import {
   BLOCK_TYPE,
   type GameEvent,
   isCardPlayable,
+//   type PlayerState,
 } from './types';
-import { createInitialGameState, applyCardToPlayer, advanceTurn, checkWinCondition } from './engine/game';
+import {
+  createInitialGameState,
+  type PlayerConfig,
+  advanceTurn,
+  checkWinCondition,
+  playCard,
+} from './engine/game';
+import { createAIStrategy } from './engine/ai';
 import { draw } from './engine/deck';
 import { renderPlayer } from './ui/player';
 import { HandView } from './ui/hand';
@@ -25,6 +33,8 @@ class App {
   private state: GameState;
   private selectedCardId: string | null = null;
   private rootElement: HTMLElement;
+  private playerConfigs: PlayerConfig[];
+  private humanActionResolver: ((value: void | PromiseLike<void>) => void) | null = null;
 
     /**
      * Checks if the provided player count is within the valid range (2-4).
@@ -37,19 +47,26 @@ class App {
 
   constructor(rootElement: HTMLElement, playerCount: number) {
     this.rootElement = rootElement;
-    
-    this.state = createInitialGameState(playerCount);
-    this.state.events = [];
-    this.addLog('system', `Game started with ${playerCount} players.`);
 
-    // Log if player count was set from URL
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('playerCount')) {
-      this.addLog('system', `Player count set to ${playerCount} from URL parameter.`);
+    this.playerConfigs = Array.from({ length: playerCount }, () => ({
+      aiStrategy: null,
+    }));
+    
+    this.state = createInitialGameState(this.playerConfigs);
+    this.state.events = [];
+    // this.addLog('system', `Game started with ${playerCount} players.`);
+
+    // Log if player count was set from URL, but only in a browser environment
+    if (typeof window !== 'undefined' && window.location) {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('playerCount')) {
+            // this.addLog('system', `Player count set to ${playerCount} from URL parameter.`);
+        }
     }
 
     this.attachEventListeners();
     this.render();
+    this.gameLoop();
   }
 
   private attachEventListeners() {
@@ -65,28 +82,32 @@ class App {
   }
 
   private handleNewGameRequest() {
-    const playerCountInput = this.rootElement.querySelector('#player-count-input') as HTMLInputElement;
-    if (!playerCountInput) return;
-
-    const newPlayerCount = parseInt(playerCountInput.value, 10);
-    if (isNaN(newPlayerCount) || !App.isValidPlayerCount(newPlayerCount)) {
-      alert('Invalid number of players. Please enter a number between 2 and 4.');
-      return;
-    }
-
-    // Warn user if a game is in progress (more than just the initial system messages)
-    if (this.state.events.length > 2) {
-      const confirmed = window.confirm('Are you sure you want to start a new game? Your current progress will be lost.');
-      if (!confirmed) {
-        return;
-      }
-    }
-
-    // Re-initialize the game state
-    this.state = createInitialGameState(newPlayerCount);
-    this.addLog('system', `New game started with ${newPlayerCount} players.`);
+    // Re-initialize the game state from the stored playerConfigs
+    this.state = createInitialGameState(this.playerConfigs);
+    // this.addLog('system', `New game started with ${this.playerConfigs.length} players.`);
     this.selectedCardId = null;
     this.render();
+    this.gameLoop();
+  }
+
+  private handlePlayerCountChange(newCount: number) {
+    if (!App.isValidPlayerCount(newCount)) return;
+
+    // Preserve existing configs, add new ones, or trim old ones
+    const currentCount = this.playerConfigs.length;
+    if (newCount > currentCount) {
+      for (let i = currentCount; i < newCount; i++) {
+        this.playerConfigs.push({ aiStrategy: null });
+      }
+    } else {
+      this.playerConfigs.length = newCount;
+    }
+    this.render();
+  }
+
+  private handleAIStrategyChange(playerIndex: number, strategy: string | null) {
+    this.playerConfigs[playerIndex].aiStrategy = strategy;
+    // No re-render here, as the config is latent until a new game starts.
   }
 
   private handlePlayCardRequest() {
@@ -99,13 +120,17 @@ class App {
 
     if (card.type === BLOCK_TYPE) {
       this.state.actionState = {
-        type: 'awaiting-target',
+        // type: 'awaiting-target',
         cardId: card.id,
       };
-      this.addLog('system', `Player ${this.state.turnIndex + 1} is choosing a target for ${card.name}.`);
+      // this.addLog('system', `Player ${this.state.turnIndex + 1} is choosing a target for ${card.name}.`);
       this.render();
     } else {
       this.playCard(card);
+      if (this.humanActionResolver) {
+        this.humanActionResolver();
+        this.humanActionResolver = null;
+      }
     }
   }
 
@@ -117,85 +142,137 @@ class App {
     if (cardIndex > -1) {
       const [discardedCard] = player.hand.splice(cardIndex, 1);
       this.state.discard.push(discardedCard);
-      this.addLog('discard', `Player ${this.state.turnIndex + 1} discarded ${discardedCard.name}.`);
-      this.endTurn();
+      // this.addLog('discard', `Player ${this.state.turnIndex + 1} discarded ${discardedCard.name}.`);
+      
+      if (this.humanActionResolver) {
+        this.humanActionResolver();
+        this.humanActionResolver = null;
+      }
+    }
+    else {
+      // throw new Error(`Discard card request not handled: could not find card ${this.selectedCardId} in player ${this.state.turnIndex+1}'s hand`);
+      console.error(`Discard card request not handled: could not find card ${this.selectedCardId} in player ${this.state.turnIndex+1}'s hand`);
     }
   }
 
   private handleTargetSelected(e: Event) {
-    if (this.state.actionState?.type !== 'awaiting-target') return;
+    if (!this.state.actionState) return;
 
     const { playerIndex: targetPlayerIndex } = (e as CustomEvent).detail;
     const cardId = this.state.actionState.cardId;
-    const card = this.state.players[this.state.turnIndex].hand.find(c => c.id === cardId);
+    const player = this.state.players[this.state.turnIndex];
+    const card = player.hand.find(c => c.id === cardId);
 
     if (card) {
       // Set the targetId in the actionState before playing the card
       this.state.actionState.targetId = this.state.players[targetPlayerIndex].id;
+      // The playCard method will now handle the state update
       this.playCard(card, targetPlayerIndex);
+      if (this.humanActionResolver) {
+        this.humanActionResolver();
+        this.humanActionResolver = null;
+      }
     }
   }
 
   private playCard(card: Card, targetPlayerIndex?: number) {
-    const currentPlayerIndex = this.state.turnIndex;
-    const player = this.state.players[currentPlayerIndex];
-
-    // Remove card from hand
-    player.hand = player.hand.filter(c => c.id !== card.id);
-
-    const targetPlayer =
-      targetPlayerIndex !== undefined
-        ? this.state.players[targetPlayerIndex]
-        : player;
-
-    const newTargetState = applyCardToPlayer(targetPlayer, card);
-
-    if (targetPlayerIndex !== undefined) {
-      this.state.players[targetPlayerIndex] = newTargetState;
-      this.addLog('play', `Player ${currentPlayerIndex + 1} played ${card.name} on Player ${targetPlayerIndex + 1}.`);
-    } else {
-      this.state.players[currentPlayerIndex] = newTargetState;
-      this.addLog('play', `Player ${currentPlayerIndex + 1} played ${card.name}.`);
-    }
-
-    this.state.discard.push(card);
-    this.state.actionState = null;
-    this.endTurn();
+    const targetPlayer = targetPlayerIndex !== undefined ? this.state.players[targetPlayerIndex] : undefined;
+    this.state = playCard(this.state, card.id, targetPlayer?.id);
   }
 
-  private endTurn() {
-    // Draw a new card
-    const { drawn, newDeck, newDiscard } = draw(this.state.deck, this.state.discard, 1);
-    this.state.deck = newDeck;
-    this.state.discard = newDiscard;
-    this.state.players[this.state.turnIndex].hand.push(...drawn);
-    this.addLog('draw', `Player ${this.state.turnIndex + 1} drew a card.`);
+  // --- Turn Management & Game Loop ---
 
-    // Check for winner
-    const winner = checkWinCondition(this.state);
-    if (winner) {
-      alert(`Player ${this.state.players.indexOf(winner) + 1} wins!`);
-      // A real app would have a better win screen
-      return;
+  private async gameLoop() {
+    while (true) {
+      const currentPlayer = this.state.players[this.state.turnIndex];
+      if (currentPlayer.aiStrategy) {
+        await this.handleAITurn();
+      } else {
+        await this.waitForHumanAction();
+      }
+
+      // After action, check for winner
+      const winner = checkWinCondition(this.state);
+      if (winner) {
+        alert(`Player ${this.state.players.indexOf(winner) + 1} wins!`);
+        break; // End the loop
+      }
+
+      // Draw card and advance to next turn
+      const { drawn, newDeck, newDiscard } = draw(this.state.deck, this.state.discard, 1);
+      this.state.deck = newDeck;
+      this.state.discard = newDiscard;
+      this.state.players[this.state.turnIndex].hand.push(...drawn);
+      // this.addLog('draw', `Player ${this.state.turnIndex + 1} drew a card.`);
+      console.log(`Player ${this.state.turnIndex + 1} drew a card. It now has ${this.state.players[this.state.turnIndex].hand.length} cards.`);
+      
+      this.state = advanceTurn(this.state);
+      // this.addLog('system', `It's now Player ${this.state.turnIndex + 1}'s turn.`);
+      this.selectedCardId = null;
+      this.render();
     }
+  }
 
-    // Advance to next turn
-    this.state = advanceTurn(this.state);
-    this.addLog('system', `It's now Player ${this.state.turnIndex + 1}'s turn.`);
-    this.selectedCardId = null;
+  private waitForHumanAction() {
+    return new Promise<void>(resolve => {
+      this.humanActionResolver = resolve;
+    });
+  }
+
+
+  // --- AI Turn Logic ---
+
+  private async delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private async handleAITurn() {
+    const player = this.state.players[this.state.turnIndex];
+    if (!player.aiStrategy) return; // Should not happen, but a good safeguard
+
+    // 1. Set "Thinking" state
+    player.isThinking = true;
     this.render();
-  }
+    await this.delay(1000);
 
-  private addLog(type: GameEvent['type'], message: string) {
-    this.state.events.unshift({ type, message });
-    if (this.state.events.length > 50) {
-      this.state.events.pop();
+    // 2. Decide move
+    const ai = createAIStrategy(player.aiStrategy);
+    const action = ai.decideMove(player, this.state);
+    
+    // console.log(`AI ${player.id} has hand ${player.hand.map(c => c.name).join(', ')}`);
+    console.log(`AI ${player.id} decided to ${action.type} card ${action.cardId} on target ${action.targetId}`);
+    player.isThinking = false;
+    this.selectedCardId = action.cardId;
+    this.render();
+    await this.delay(1000);
+
+    // 3. Handle action
+    if (action.type === 'PLAY_CARD') {
+      const cardToPlay = player.hand.find(c => c.id === action.cardId);
+      if (cardToPlay) {
+        if (action.targetId) {
+          const targetPlayerIndex = this.state.players.findIndex(p => p.id === action.targetId);
+          if (targetPlayerIndex !== -1) {
+            this.state.players[targetPlayerIndex].isTargeted = true;
+            this.render();
+            await this.delay(1000);
+            this.state.players[targetPlayerIndex].isTargeted = false;
+            const targetPlayer = this.state.players[targetPlayerIndex];
+            this.state = playCard(this.state, cardToPlay.id, targetPlayer.id);
+          }
+        } else {
+          this.state = playCard(this.state, cardToPlay.id);
+        }
+      }
+    } else if (action.type === 'DISCARD_CARD') {
+      this.handleDiscardCardRequest(); // Re-uses the existing discard logic
     }
   }
+
 
   private render() {
     const currentPlayer = this.state.players[this.state.turnIndex];
-    const isTargeting = this.state.actionState?.type === 'awaiting-target';
+    const isTargeting = this.state.actionState ? true : false;
 
     const selectedCard = this.selectedCardId ? currentPlayer.hand.find(c => c.id === this.selectedCardId) : null;
     const canPlay = selectedCard ? isCardPlayable(selectedCard, this.state) : false;
@@ -224,14 +301,34 @@ class App {
         <div class="bottom-section">
           <div class="left-pane">
             <div class="game-settings">
-              <label for="player-count-input">Number of Players:</label>
-              <input
-                type="number"
-                id="player-count-input"
-                min="2"
-                max="4"
-                .value=${this.state.players.length.toString()}
-              />
+              <h4>Game Setup</h4>
+              <div class="player-count-selector">
+                <label for="player-count-input">Number of Players:</label>
+                <input
+                  type="number"
+                  id="player-count-input"
+                  min="2"
+                  max="4"
+                  .value=${this.playerConfigs.length.toString()}
+                  @change=${(e: Event) => this.handlePlayerCountChange(parseInt((e.target as HTMLInputElement).value))}
+                />
+              </div>
+
+              <div class="player-configs">
+                ${this.playerConfigs.map(
+                  (config, index) => html`
+                    <div class="player-config">
+                      <label>Player ${index + 1}</label>
+                      <select @change=${(e: Event) => this.handleAIStrategyChange(index, (e.target as HTMLSelectElement).value === 'null' ? null : (e.target as HTMLSelectElement).value)}>
+                        <option value="null" ?selected=${config.aiStrategy === null}>Human</option>
+                        <option value="Heuristic" ?selected=${config.aiStrategy === 'Heuristic'}>AI: Heuristic</option>
+                        <option value="Aggressor" ?selected=${config.aiStrategy === 'Aggressor'}>AI: Aggressor</option>
+                      </select>
+                    </div>
+                  `
+                )}
+              </div>
+
               <button @click=${() => this.handleNewGameRequest()}>
                 Start New Game
               </button>
@@ -244,6 +341,7 @@ class App {
                 selectedCardId: this.selectedCardId,
                 isTargeting,
                 canPlay,
+                isAITurnInProgress: false, // This flag is no longer needed
               })}
             </div>
           </div>

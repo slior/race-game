@@ -1,10 +1,8 @@
 /*
  * src/ui/ControlsView.ts
  *
- * This file defines the ControlsView component, which provides the primary
- * action buttons for the player (e.g., "Play Card", "Discard"). It is
- * responsible for capturing user intent and dispatching events that the
- * main application logic can respond to.
+ * This file exports a single function, `ControlsView`, which generates the
+ * main user controls for playing or discarding a card.
  */
 import { html } from 'lit-html';
 
@@ -15,53 +13,52 @@ interface ControlsProps {
   selectedCardId: string | null;
   isTargeting: boolean;
   canPlay: boolean;
+  isAITurnInProgress: boolean;
 }
 
 /**
- * Renders the main action buttons for the player.
+ * Renders the main game controls.
  *
- * This component displays "Play Card" and "Discard" buttons. The buttons are
- * enabled or disabled based on whether a card is currently selected. It
- * dispatches custom events ('play-card-requested', 'discard-card-requested')
- * when the buttons are clicked.
+ * This component displays the "Play Card" and "Discard" buttons. It uses the
+ * provided properties to determine whether the buttons should be enabled or
+ * disabled, preventing illegal moves and actions during an AI's turn.
  *
- * @param props - The properties for rendering the controls.
+ * @param props - An object containing the control state properties.
  * @returns A lit-html template result.
  */
-export function ControlsView({ selectedCardId, isTargeting, canPlay }: ControlsProps) {
-  const canDiscard = selectedCardId !== null && !isTargeting;
+export function ControlsView({
+  selectedCardId,
+  isTargeting,
+  canPlay,
+  isAITurnInProgress,
+}: ControlsProps) {
+  const onPlay = () =>
+    document.dispatchEvent(new CustomEvent('play-card-requested'));
+  const onDiscard = () =>
+    document.dispatchEvent(new CustomEvent('discard-card-requested'));
 
-  const onPlayClick = () => {
-    if (!canPlay) return;
-    document.dispatchEvent(
-      new CustomEvent('play-card-requested', {
-        detail: { cardId: selectedCardId },
-      })
-    );
-  };
-
-  const onDiscardClick = () => {
-    if (!canDiscard) return;
-    document.dispatchEvent(
-      new CustomEvent('discard-card-requested', {
-        detail: { cardId: selectedCardId },
-      })
-    );
-  };
+  const playButtonDisabled =
+    !selectedCardId ||
+    isTargeting ||
+    !canPlay ||
+    isAITurnInProgress;
+  const discardButtonDisabled = !selectedCardId || isAITurnInProgress;
 
   return html`
     <div class="controls-view">
       <button
-        @click=${onPlayClick}
-        ?disabled=${!canPlay}
+        id="play-card-btn"
         class="control-button"
+        @click=${onPlay}
+        ?disabled=${playButtonDisabled}
       >
         Play Card
       </button>
       <button
-        @click=${onDiscardClick}
-        ?disabled=${!canDiscard}
+        id="discard-card-btn"
         class="control-button"
+        @click=${onDiscard}
+        ?disabled=${discardButtonDisabled}
       >
         Discard
       </button>

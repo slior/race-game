@@ -4,40 +4,33 @@
  * and game initialization, adhering to a stateless, immutable architecture.
  */
 
-import { createDeck, shuffle, draw } from './deck';
 import {
-  type GameState,
   type Card,
+  type GameState,
   type PlayerState,
+  type GameEvent,
+  isBlocked,
+  hasGreenLight,
   BLOCK_TYPE,
   REMEDY_TYPE,
   IMMUNITY_TYPE,
   PROGRESS_TYPE,
   GREEN_LIGHT_NAME,
-  isImmuneTo,
-  hasGreenLight,
+  BLOCK_STOP_TYPE,
+  isCardPlayable,
+  getCurrentPlayer,
+  getCardFromHand,
+  getPlayerById,
+  getPlayerIndex,
 } from '../types';
-
-const DEFAULT_INITIAL_HAND_SIZE = 5;
+import { createDeck, draw, shuffle } from './deck';
 
 /**
- * Creates a new player state object.
- * @param initialHand - The initial set of cards for the player.
- * @returns A new PlayerState object.
+ * Configuration for a player.
  */
-export const createPlayer = (id: string, initialHand: Card[]): PlayerState => {
-  return {
-    id,
-    hand: initialHand,
-    inPlay: {
-      progress: [],
-      blocks: [],
-      immunities: [],
-    },
-    totalKm: 0,
-    isReady: false,
-  };
-};
+export interface PlayerConfig {
+  aiStrategy: string | null;
+}
 
 /**
  * Applies the effect of a played card to a player's state.
@@ -46,119 +39,200 @@ export const createPlayer = (id: string, initialHand: Card[]): PlayerState => {
  * @param card - The card to apply.
  * @returns A new PlayerState object with the card's effect applied.
  */
-export const applyCardToPlayer = (
-  player: PlayerState,
-  card: Card
-): PlayerState => {
-  const newPlayerState = JSON.parse(JSON.stringify(player));
+export function applyCardToPlayer(player: PlayerState, card: Card): PlayerState {
+  const newPlayerState = {
+    ...player,
+    inPlay: {
+      progress: [...player.inPlay.progress],
+      blocks: [...player.inPlay.blocks],
+      immunities: [...player.inPlay.immunities],
+    },
+  };
 
   switch (card.type) {
     case PROGRESS_TYPE:
-      // A player must have a green light to play a progress card.
-      if (
-        !newPlayerState.inPlay.progress.find(
-          (c: Card) => c.name === GREEN_LIGHT_NAME
-        )
-      ) {
-        return newPlayerState; // No change if no green light
+      // A player must have a green light and not be blocked to play a progress card.
+      if (!hasGreenLight(player) || isBlocked(player)) {
+        return newPlayerState; // No change
       }
+      newPlayerState.inPlay.progress.push(card);
       if (card.value) {
         newPlayerState.totalKm += card.value;
-        newPlayerState.inPlay.progress.push(card);
-      }
-      break;
-    case BLOCK_TYPE:
-      if (!isImmuneTo(player, card)) {
-        newPlayerState.inPlay.blocks.push(card);
       }
       break;
     case REMEDY_TYPE:
-      // The "Green Light" card is special; it's a prerequisite for progress.
       if (card.name === GREEN_LIGHT_NAME) {
+        // A green light is a prerequisite for progress, but also removes a "Stop" block.
         newPlayerState.inPlay.progress.push(card);
+        newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
+          b => b.blocksType !== BLOCK_STOP_TYPE
+        );
+      } else {
+        // Any other remedy card removes the corresponding block.
+        newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
+          b => b.blocksType !== card.remediesType
+        );
       }
-      // Find and remove the corresponding block
-      newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
-        (block: Card) => block.blocksType !== card.remediesType
-      );
+      break;
+    case BLOCK_TYPE:
+      newPlayerState.inPlay.blocks.push(card);
       break;
     case IMMUNITY_TYPE:
       newPlayerState.inPlay.immunities.push(card);
       break;
   }
 
-  newPlayerState.isReady = hasGreenLight(newPlayerState);
+  // Update isReady status
+  newPlayerState.isReady =
+    hasGreenLight(newPlayerState) && !isBlocked(newPlayerState);
+
   return newPlayerState;
-};
+}
 
 /**
- * Advances the turn to the next player.
- * @param currentState - The current state of the game.
+ * Adds a new event to the game log.
+ * @param gameState The current state of the game.
+ * @param type The type of the event.
+ * @param message The event message.
+ * @returns A new GameState object with the event added.
+ */
+function addGameEvent(gameState: GameState, type: GameEvent['type'], message: string): GameState {
+    const newEvents = [{ type, message }, ...gameState.events];
+    if (newEvents.length > 50) {
+      newEvents.pop();
+    }
+    return {
+        ...gameState,
+        events: newEvents,
+    };
+}
+
+/**
+ * Processes the playing of a card, updating the game state.
+ * This is a pure function that returns a new state object.
+ * @param gameState The current state of the game.
+ * @param cardId The ID of the card to play.
+ * @param targetPlayerId The ID of the target player (for block cards).
+ * @returns A new GameState object reflecting the move.
+ */
+export function playCard(gameState: GameState, cardId: string, targetPlayerId?: string): GameState {
+   
+    const card = getCardFromHand(getCurrentPlayer(gameState), cardId);
+    if (!card) return gameState; // Card not found, return original state
+    
+    let newState = {
+        ...gameState,
+        players: gameState.players.map(p => ({...p})),
+        discard: [...gameState.discard],
+    };
+    
+    const player = getCurrentPlayer(newState);
+    let logMessage: string;
+    newState.discard.push(card); // Add card to discard pile
+    if (!isCardPlayable(card,gameState)) 
+    {
+        logMessage = `Player ${player.id} tried to play ${card.name} but it was not playable.`;
+    }
+    else
+    {  
+      player.hand = player.hand.filter(c => c.id !== card.id); // Remove card from hand
+
+      const targetPlayer = targetPlayerId ? getPlayerById(newState, targetPlayerId) : player;
+      
+      if (!targetPlayer) throw new Error('Target player not found');
+
+      const newTargetPlayer = applyCardToPlayer(targetPlayer, card);
+      newState.players = newState.players.map(p => p.id === newTargetPlayer.id ? newTargetPlayer : p); // update target player
+
+      newState = advanceTurn(newState);
+
+      
+      logMessage = (targetPlayerId && targetPlayerId !== player.id) ?
+            `Player ${player.id} played ${card.name} on Player ${getPlayerIndex(targetPlayer, newState) + 1}.` :
+            `Player ${player.id} played ${card.name}.`;
+      
+      
+    } //end else - card was playable
+    
+    newState = addGameEvent(newState, 'play', logMessage);
+    newState.actionState = null; // Reset action state
+    return newState;
+}
+
+
+/**
+ * Advances the game to the next turn.
+ * @param gameState - The current state of the game.
  * @returns A new GameState object with the turn index updated.
  */
-export const advanceTurn = (currentState: GameState): GameState => {
-  const newTurnIndex = (currentState.turnIndex + 1) % currentState.players.length;
+export function advanceTurn(gameState: GameState): GameState {
+  const newTurnIndex = (gameState.turnIndex + 1) % gameState.players.length;
   return {
-    ...currentState,
+    ...gameState,
     turnIndex: newTurnIndex,
   };
-};
+}
+
+export const TARGET_DISTANCE = 1000;
 
 /**
- * Checks if any player has met the win condition (>= 1000 km).
- * @param currentState - The current state of the game.
- * @returns The winning PlayerState object, or null if no one has won.
+ * Checks if a player has won the game.
+ * @param gameState The current state of the game.
+ * @returns The winning PlayerState or null if no winner yet.
  */
-export const checkWinCondition = (
-  currentState: GameState
-): PlayerState | null => {
-  for (const player of currentState.players) {
-    if (player.totalKm >= 1000) {
-      return player;
-    }
-  }
-  return null;
-};
+export function checkWinCondition(gameState: GameState): PlayerState | null {
+  
+  return gameState.players.find((p) => p.totalKm >= TARGET_DISTANCE) || null;
+}
 
 /**
  * Creates the initial state for a new game.
- * @param playerCount - The number of players in the game (2-4).
- * @param initialHandSize - The number of cards to deal to each player.
- * @returns A complete GameState object for the start of a game.
+ *
+ * This function initializes the deck, shuffles it, deals cards to players,
+ * and sets up the initial game state object.
+ *
+ * @param playerConfigs - An array of player configurations.
+ * @returns The initial GameState object.
  */
-export const createInitialGameState = (
-  playerCount: number,
-  initialHandSize = DEFAULT_INITIAL_HAND_SIZE
-): GameState => {
-  const initialDeck = createDeck();
-  const shuffledDeck = shuffle(initialDeck);
+export function createInitialGameState(
+  playerConfigs: PlayerConfig[]
+): GameState {
 
-  const players: PlayerState[] = [];
-  let workingDeck = [...shuffledDeck];
-  let workingDiscard: Card[] = [];
-
-  for (let i = 0; i < playerCount; i++) {
-    const {
-      drawn,
-      newDeck,
-      newDiscard,
-    } = draw(workingDeck, workingDiscard, initialHandSize);
-    workingDeck = newDeck;
-    workingDiscard = newDiscard;
-    players.push(createPlayer(`player-${i}`, drawn));
+  if (playerConfigs.length < 2 || playerConfigs.length > 4) {
+    throw new Error('Player count must be between 2 and 4');
   }
 
-  const newPlayers = players.map(p => ({
-    ...p,
-    isReady: hasGreenLight(p),
+  let deck = shuffle(createDeck());
+
+  // Draw initial hands
+  const hands = Array.from({ length: playerConfigs.length }, () => {
+    const { drawn, newDeck } = draw(deck, [], 5);
+    deck = newDeck;
+    return drawn;
+  });
+
+  const players: PlayerState[] = playerConfigs.map((config, index) => ({
+    id: `player-${index}`,
+    hand: hands[index],
+    inPlay: { progress: [], blocks: [], immunities: [] },
+    totalKm: 0,
+    isReady: false, // will be updated after creation
+    aiStrategy: config.aiStrategy,
+    isThinking: false,
+    isTargeted: false,
   }));
 
+  // Update isReady state for all players
+  players.forEach(p => {
+    p.isReady = hasGreenLight(p) && !isBlocked(p);
+  });
+
   return {
-    deck: workingDeck,
-    discard: workingDiscard,
-    players: newPlayers,
+    deck,
+    discard: [],
+    players,
     turnIndex: 0,
     actionState: null,
     events: [],
   };
-};
+}

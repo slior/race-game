@@ -8,10 +8,11 @@ export type ActionType = typeof PLAY_CARD | typeof DISCARD_CARD;
 export interface GameAction {
   type: ActionType;
   cardId: string; // The ID of the card to play or discard
+  targetId?: string; // Optional: The ID of the player to target
 }
 
-export function newGameAction(type: ActionType, cardId: string): GameAction {
-  return { type, cardId };
+export function newGameAction(type: ActionType, cardId: string, targetId?: string): GameAction {
+  return { type, cardId, targetId };
 }
 
 // The contract for all AI strategies

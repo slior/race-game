@@ -8,25 +8,27 @@
  * each card.
  */
 
-import { html, type TemplateResult } from 'lit-html';
-import type { PlayerState as PlayerModel } from '../types';
 import { renderCard } from './card';
+import type { PlayerState } from '../types';
+import { hasGreenLight, isBlocked } from '../types';
+import { html, type TemplateResult } from 'lit-html';
+import { classMap } from 'lit-html/directives/class-map.js';
 
 /**
  * Renders the view for a single player.
  *
- * This function generates the HTML for displaying a player's name, their
- * current score (total distance), and a visual representation of all the
- * block and immunity cards they currently have in play.
+ * This component displays the player's name, their total distance, their
+ * in-play cards (progress, blocks, immunities), and visual indicators for
+ * their current status (e.g., if it's their turn or they are targetable).
  *
- * @param player The player object to render.
- * @param playerIndex The index of the player, used for display purposes.
- * @param isTargetable A boolean indicating if the player can be targeted.
- * @param isCurrentPlayer A boolean indicating if this is the current player.
- * @returns A lit-html TemplateResult containing the player's UI.
+ * @param player - The state object for the player.
+ * @param playerIndex - The index of the player.
+ * @param isTargetable - Whether the player can be targeted by a block card.
+ * @param isCurrentPlayer - Whether it is this player's turn.
+ * @returns A lit-html template result.
  */
 export function renderPlayer(
-  player: PlayerModel,
+  player: PlayerState,
   playerIndex: number,
   isTargetable: boolean,
   isCurrentPlayer: boolean
@@ -34,7 +36,8 @@ export function renderPlayer(
   // Combine all cards in play (blocks and immunities) into a single array
   const cardsInPlay = [...player.inPlay.blocks, ...player.inPlay.immunities];
 
-  const onPlayerClick = () => {
+  const onPlayerClick = (e: Event) => {
+    e.stopPropagation();
     if (!isTargetable) return;
     document.dispatchEvent(
       new CustomEvent('player-selected-as-target', {
@@ -43,19 +46,36 @@ export function renderPlayer(
     );
   };
 
+  const playerClasses = {
+    player: true,
+    'current-player': isCurrentPlayer,
+    targetable: isTargetable,
+    targeted: player.isTargeted,
+    thinking: player.isThinking,
+  };
+
   return html`
     <div
-      class="player ${isTargetable ? 'targetable' : ''} ${isCurrentPlayer
-        ? 'current-player'
-        : ''}"
+      class=${classMap(playerClasses)}
+      data-player-index=${playerIndex}
       @click=${onPlayerClick}
     >
-      <div class="player-info">
-        <h2>Player ${playerIndex + 1}</h2>
-        <span>${player.totalKm}km</span>
+      <div class="player-header">
+        <h3>
+          Player ${playerIndex + 1}
+          ${player.aiStrategy ? html`<i>(${player.aiStrategy})</i>` : ''}
+        </h3>
+        ${player.isThinking ? html`<span class="thinking-indicator">Thinking...</span>` : ''}
+        <div class="player-info">
+          <span>${player.totalKm}km</span>
+          <div class="status-indicators">
+            ${isCurrentPlayer && !isBlocked(player) && hasGreenLight(player)
+              ? html`<span class="go-indicator"></span>`
+              : ''}
+          </div>
+        </div>
       </div>
       <div class="cards-in-play">
-        ${player.isReady ? html`<div class="go-indicator"></div>` : ''}
         ${cardsInPlay.map(card => renderCard(card))}
       </div>
     </div>

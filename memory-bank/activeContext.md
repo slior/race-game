@@ -1,17 +1,16 @@
 # Active Context
 
 ## Current Work Focus
-The primary goal of the last session was to implement a feature allowing the user to select the number of players for the game, from 2 to 4. This needed to be configurable through both a UI element and a URL parameter.
+The last session focused on refining the core game logic, particularly the `playCard` function, to handle invalid moves more gracefully and improve the AI's decision-making process.
 
 ## Recent Changes
--   **Player Count UI**: Added a settings section to the UI with a number input and a "Start New Game" button. This allows users to change the number of players.
--   **Game Restart Logic**: Implemented logic to handle restarting the game with a new player count. This includes a confirmation prompt to prevent accidental loss of progress.
--   **URL Parameter**: The application now accepts a `playerCount` URL query parameter (e.g., `?playerCount=3`) to set the number of players on load.
--   **Documentation**: Updated the `systemPatterns.md`, `progress.md`, and relevant codemaps to reflect these new capabilities.
+-   **Refined `playCard` Logic**: The `playCard` function in `src/engine/game.ts` was updated. It no longer advances the turn if an invalid card is played. Instead, it now logs an event indicating the failed attempt, making the game flow more robust and easier to debug.
+-   **Smarter AI Strategies**: The AI strategies (e.g., `AggressorStrategy`) were updated to use the centralized `isCardPlayable` helper function. This ensures that the AI only attempts to make valid moves, preventing it from getting stuck or making illegal plays.
+-   **Test Suite Updates**: The test suites for the game engine and AI strategies (`game.test.ts`, `AggressorStrategy.test.ts`) were updated to reflect the new `playCard` behavior and validate the improved AI logic.
 
 ## Next Steps
-The player count feature is now complete. The next focus should be on writing comprehensive documentation or moving to end-to-end testing, as outlined in `progress.md`.
+With the core game engine and AI being more robust, the focus can now shift to end-to-end testing of the full game loop, especially with multiple AI players. Further refinement of AI strategies to add more sophisticated behaviors is also a good next step.
 
 ## Active Decisions and Considerations
-- The decision to use a simple `window.confirm()` for the restart warning is sufficient for the current scope but could be replaced with a more integrated UI modal in the future.
-- The player count is validated to be within the 2-4 range. 
+- The use of pure functions and centralized helper functions (`isCardPlayable`) continues to be a successful pattern. It should be maintained for all new game logic.
+- The game event log has become more important for tracking both successful and failed actions. This could be enhanced in the UI to be more visible to the player. 

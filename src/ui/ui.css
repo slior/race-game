@@ -319,4 +319,52 @@ body {
   flex-direction: column;
   justify-content: space-between;
   height: 100%;
+}
+
+/* --- Added AI Feedback and new Game Settings Styles --- */
+
+.player.targeted {
+  outline: 3px solid #e74c3c;
+  transform: scale(1.03);
+}
+
+.player.thinking .player-header {
+  background-color: #f3f3f3;
+  font-style: italic;
+}
+
+.thinking-indicator {
+  margin-left: 10px;
+  color: #555;
+  font-size: 0.9em;
+}
+
+.game-settings {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #dee2e6;
+}
+
+.game-settings h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.player-count-selector,
+.player-config {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.player-configs {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 } 
