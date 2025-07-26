@@ -14,7 +14,11 @@ import {
     TARGET_DISTANCE,
 } from './game';
 import * as deck from './deck';
-import type { Card, GameState } from '../types';
+import type {
+    Card,
+    GameState,
+    PlayerState
+} from '../types';
 import {
     GREEN_LIGHT_NAME,
     RED_LIGHT_NAME,
@@ -29,6 +33,7 @@ import {
     getPlayerById,
     SPARE_TIRE_NAME,
     FLAT_TIRE_NAME,
+    PROGRESS_50_KM_NAME,
     // SPEED_LIMIT_NAME,
 } from '../types';
 import { FULL_DECK } from './cards';
@@ -298,52 +303,180 @@ it('should apply an immunity card to the player and prevent future blocks of tha
         expect(stateAfterBlock.events[0].message).toMatch(/tried to play/i);
     });
 
-it('should allow a progress card to be played after a remedy card removes a block', () => {
-    const REMEDY_CARD_ID = 'r1';
-    const BLOCK_CARD_ID = 'b3';
-    const PROGRESS_CARD_ID = 'p1';
+    it('should allow a progress card to be played after a remedy card removes a block', () => {
+        const REMEDY_CARD_ID = 'r1';
+        const BLOCK_CARD_ID = 'b3';
+        const PROGRESS_CARD_ID = 'p1';
 
-    // Create cards
-    const blockCard = createBlockCard(BLOCK_CARD_ID, FLAT_TIRE_NAME);
-    const remedyCard = createRemedyCard(REMEDY_CARD_ID, SPARE_TIRE_NAME);
-    const progressCard = createProgressCard(PROGRESS_CARD_ID, PROGRESS_100_KM_NAME);
-    const greenLightCard = createRemedyCard('gl1', GREEN_LIGHT_NAME);
-    // Set up initial state: player 1 is blocked with Flat Tire and has remedy and progress in hand, and also has a green light
-    let initialState = createBaseState(2);
-    const player1Id = initialState.players[0].id;
-    initialState.players[0].inPlay.blocks.push(blockCard);
-    initialState.players[0].hand.push(remedyCard, progressCard);
-    initialState.players[0].inPlay.progress.push(greenLightCard);
-    initialState.players[0].isReady = true;
-    
-    // Player 1 plays the remedy card to remove the block
-    let stateAfterRemedy = playCard(initialState, remedyCard.id);
+        // Create cards
+        const blockCard = createBlockCard(BLOCK_CARD_ID, FLAT_TIRE_NAME);
+        const remedyCard = createRemedyCard(REMEDY_CARD_ID, SPARE_TIRE_NAME);
+        const progressCard = createProgressCard(PROGRESS_CARD_ID, PROGRESS_100_KM_NAME);
+        const greenLightCard = createRemedyCard('gl1', GREEN_LIGHT_NAME);
+        // Set up initial state: player 1 is blocked with Flat Tire and has remedy and progress in hand, and also has a green light
+        let initialState = createBaseState(2);
+        const player1Id = initialState.players[0].id;
+        initialState.players[0].inPlay.blocks.push(blockCard);
+        initialState.players[0].hand.push(remedyCard, progressCard);
+        initialState.players[0].inPlay.progress.push(greenLightCard);
+        initialState.players[0].isReady = true;
+        
+        // Player 1 plays the remedy card to remove the block
+        let stateAfterRemedy = playCard(initialState, remedyCard.id);
 
-    const player1AfterRemedy = getPlayerById(stateAfterRemedy, player1Id);
-    expect(player1AfterRemedy).not.toBeNull();
-    if (!player1AfterRemedy) throw new Error('Player 1 not found');
-    // Block should be removed
-    expect(player1AfterRemedy.inPlay.blocks.find((c: Card) => c.id === BLOCK_CARD_ID)).toBeUndefined();
-    // Remedy should be in discard
-    expect(stateAfterRemedy.discard.find((c: Card) => c.id === REMEDY_CARD_ID)).toBeDefined();
-    // Progress card should still be in hand
-    expect(player1AfterRemedy.hand.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
+        const player1AfterRemedy = getPlayerById(stateAfterRemedy, player1Id);
+        expect(player1AfterRemedy).not.toBeNull();
+        if (!player1AfterRemedy) throw new Error('Player 1 not found');
+        // Block should be removed
+        expect(player1AfterRemedy.inPlay.blocks.find((c: Card) => c.id === BLOCK_CARD_ID)).toBeUndefined();
+        // Remedy should be in discard
+        expect(stateAfterRemedy.discard.find((c: Card) => c.id === REMEDY_CARD_ID)).toBeDefined();
+        // Progress card should still be in hand
+        expect(player1AfterRemedy.hand.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
 
-    // It's now player 2's turn, so give progress card to player 2 and play it, or advance turn back to player 1
-    // For this test, let's simulate player 1's next turn by setting turnIndex back to player 0
-    stateAfterRemedy.turnIndex = 0;
+        // It's now player 2's turn, so give progress card to player 2 and play it, or advance turn back to player 1
+        // For this test, let's simulate player 1's next turn by setting turnIndex back to player 0
+        stateAfterRemedy.turnIndex = 0;
 
-    // Player 1 plays the progress card
-    let stateAfterProgress = playCard(stateAfterRemedy, progressCard.id);
+        // Player 1 plays the progress card
+        let stateAfterProgress = playCard(stateAfterRemedy, progressCard.id);
 
-    const player1AfterProgress = getPlayerById(stateAfterProgress, player1Id);
-    expect(player1AfterProgress).not.toBeNull();
-    if (!player1AfterProgress) throw new Error('Player 1 not found');
-    // Progress card should be in discard
-    expect(stateAfterProgress.discard.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
-    // Player's progress should be updated (should have the progress card in inPlay.progress)
-    expect(player1AfterProgress.inPlay.progress.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
-    // There should be an event indicating the progress card was played
-    expect(stateAfterProgress.events[0].message).toContain('played 100km');
+        const player1AfterProgress = getPlayerById(stateAfterProgress, player1Id);
+        expect(player1AfterProgress).not.toBeNull();
+        if (!player1AfterProgress) throw new Error('Player 1 not found');
+        // Progress card should be in discard
+        expect(stateAfterProgress.discard.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
+        // Player's progress should be updated (should have the progress card in inPlay.progress)
+        expect(player1AfterProgress.inPlay.progress.find((c: Card) => c.id === PROGRESS_CARD_ID)).toBeDefined();
+        // There should be an event indicating the progress card was played
+        expect(stateAfterProgress.events[0].message).toContain('played 100km');
+    });
 });
+
+describe('applyCardToPlayer', () => {
+    let basePlayer: PlayerState;
+    const greenLightCard = createRemedyCard('gl', GREEN_LIGHT_NAME);
+
+    beforeEach(() => {
+        const initialState = createBaseState();
+        basePlayer = initialState.players[0];
+    });
+
+    // Test cases for PROGRESS_TYPE cards
+    describe('Progress Cards', () => {
+        const progressCard = createProgressCard('p100', PROGRESS_100_KM_NAME);
+
+        it('should add progress card to inPlay and increase totalKm if player has green light and is not blocked', () => {
+            let player = applyCardToPlayer(basePlayer, greenLightCard);
+            player = applyCardToPlayer(player, progressCard);
+
+            expect(player.totalKm).toBe(100);
+            expect(player.inPlay.progress).toContain(progressCard);
+        });
+
+        it('should not apply progress card if player does not have green light', () => {
+            const player = applyCardToPlayer(basePlayer, progressCard);
+
+            expect(player.totalKm).toBe(0);
+            expect(player.inPlay.progress).not.toContain(progressCard);
+        });
+
+        it('should not apply progress card if player is blocked', () => {
+            const blockCard = createBlockCard('b1', RED_LIGHT_NAME);
+            let player = applyCardToPlayer(basePlayer, greenLightCard);
+            player = applyCardToPlayer(player, blockCard);
+            const finalPlayer = applyCardToPlayer(player, progressCard);
+
+            expect(finalPlayer.totalKm).toBe(0);
+            expect(finalPlayer.inPlay.progress).not.toContain(progressCard);
+        });
+
+        it('should throw an error if a progress card has no value', () => {
+            const invalidProgressCard = { ...createProgressCard('p-invalid', PROGRESS_50_KM_NAME), value: undefined };
+            let player = applyCardToPlayer(basePlayer, greenLightCard);
+            expect(() => applyCardToPlayer(player, invalidProgressCard)).toThrow('Invalid state: progress card has no value');
+        });
+    });
+
+    // Test cases for REMEDY_TYPE cards
+    describe('Remedy Cards', () => {
+        it('should add Green Light to progress and remove a Stop block', () => {
+            const stopBlock = createBlockCard('stop', RED_LIGHT_NAME);
+            let player = applyCardToPlayer(basePlayer, stopBlock);
+            expect(player.inPlay.blocks).toContain(stopBlock);
+
+            player = applyCardToPlayer(player, greenLightCard);
+
+            expect(player.inPlay.progress).toContain(greenLightCard);
+            expect(player.inPlay.blocks).not.toContain(stopBlock);
+        });
+
+        it('should add Green Light to progress even if not blocked', () => {
+            const player = applyCardToPlayer(basePlayer, greenLightCard);
+            expect(player.inPlay.progress).toContain(greenLightCard);
+            expect(player.inPlay.blocks.length).toBe(0);
+        });
+
+        it('should remove the corresponding block for a non-Green-Light remedy', () => {
+            const accidentBlock = createBlockCard('acc', ACCIDENT_NAME);
+            const repairRemedy = createRemedyCard('rep', REPAIR_NAME);
+            let player = applyCardToPlayer(basePlayer, accidentBlock);
+            expect(player.inPlay.blocks).toContain(accidentBlock);
+
+            player = applyCardToPlayer(player, repairRemedy);
+
+            expect(player.inPlay.blocks).not.toContain(accidentBlock);
+        });
+    });
+
+    // Test cases for BLOCK_TYPE cards
+    describe('Block Cards', () => {
+        it('should add a block card to the player inPlay blocks', () => {
+            const blockCard = createBlockCard('b1', ACCIDENT_NAME);
+            const player = applyCardToPlayer(basePlayer, blockCard);
+
+            expect(player.inPlay.blocks).toContain(blockCard);
+        });
+    });
+
+    // Test cases for IMMUNITY_TYPE cards
+    describe('Immunity Cards', () => {
+        it('should add an immunity card to the player inPlay immunities', () => {
+            const immunityCard = createImmunityCard('im1', DRIVING_ACE_NAME);
+            const player = applyCardToPlayer(basePlayer, immunityCard);
+
+            expect(player.inPlay.immunities).toContain(immunityCard);
+        });
+    });
+
+    // Test cases for isReady status update
+    describe('isReady status', () => {
+        it('should set isReady to true when player has green light and is not blocked', () => {
+            const player = applyCardToPlayer(basePlayer, greenLightCard);
+            expect(player.isReady).toBe(true);
+        });
+
+        it('should set isReady to false when player does not have green light', () => {
+            expect(basePlayer.isReady).toBe(false);
+        });
+
+        it('should set isReady to false when player is blocked', () => {
+            const blockCard = createBlockCard('b1', RED_LIGHT_NAME);
+            let player = applyCardToPlayer(basePlayer, greenLightCard);
+            player = applyCardToPlayer(player, blockCard);
+
+            expect(player.isReady).toBe(false);
+        });
+
+        it('should set isReady to true after a block is remedied', () => {
+            const blockCard = createBlockCard('b1', RED_LIGHT_NAME);
+            const remedyCard = createRemedyCard('r1', GREEN_LIGHT_NAME); // Green light also remedies stop
+            let player = applyCardToPlayer(basePlayer, blockCard);
+            player = applyCardToPlayer(player, remedyCard); // This first green light is consumed by the remedy
+
+            player = applyCardToPlayer(player, greenLightCard); // This second green light makes the player ready
+
+            expect(player.isReady).toBe(true);
+        });
+    });
 }); 
