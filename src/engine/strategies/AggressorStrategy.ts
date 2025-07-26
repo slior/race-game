@@ -1,6 +1,7 @@
 import { BLOCK_TYPE, type PlayerState, type GameState, isImmuneTo, 
     // isBlocked, getHighestProgressCard,
-    getPlayersOpponents, getLeader, isCardPlayable, 
+    getPlayersOpponents, getLeader, isCardPlayable,
+    createActionState, 
     // REMEDY_TYPE, hasGreenLight 
 } from '../../types';
 import { type IAIStrategy, type GameAction, PLAY_CARD, DISCARD_CARD, newGameAction } from './IAIStrategy';
@@ -18,7 +19,7 @@ export class AggressorStrategy implements IAIStrategy {
                     // Check if this move is actually playable
                     const tempGameState: GameState = {
                         ...gameState,
-                        actionState: { /*type: 'awaiting-target',*/ cardId: card.id, targetId: leader.id }
+                        actionState: createActionState(card.id, leader.id)
                     };
                     if (isCardPlayable(card, tempGameState)) {
                         return newGameAction(PLAY_CARD, card.id, leader.id);

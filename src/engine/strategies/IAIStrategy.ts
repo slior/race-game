@@ -11,6 +11,14 @@ export interface GameAction {
   targetId?: string; // Optional: The ID of the player to target
 }
 
+/**
+ * Creates a new GameAction object representing an action taken by the AI.
+ *
+ * @param type - The type of action to perform (e.g., PLAY_CARD or DISCARD_CARD).
+ * @param cardId - The ID of the card to play or discard.
+ * @param targetId - (Optional) The ID of the player to target, if applicable (e.g., when playing a block card).
+ * @returns A GameAction object describing the action.
+ */
 export function newGameAction(type: ActionType, cardId: string, targetId?: string): GameAction {
   return { type, cardId, targetId };
 }

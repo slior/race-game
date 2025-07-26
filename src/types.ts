@@ -222,11 +222,49 @@ export function createBlockCard(id: string, name: CardName): Card
     return createCard(id, BLOCK_TYPE, name, undefined, blockType);
 }
 
+  // Define event type constants
+  export const GAME_EVENT_PLAY = 'play';
+  export const GAME_EVENT_DISCARD = 'discard';
+  export const GAME_EVENT_DRAW = 'draw';
+  export const GAME_EVENT_SYSTEM = 'system';
+
+/**
+ * Represents a single event in the game log.
+ *
+ * This interface is used to record significant actions or system messages that occur during gameplay.
+ * Each event contains a human-readable message and a type indicating the nature of the event.
+ *
+ * @property message - A descriptive string explaining the event (e.g., "Alice played 75 km", "Bob drew a card").
+ * @property type - The category of the event, which can be:
+ *   - 'play': A card was played.
+ *   - 'discard': A card was discarded.
+ *   - 'draw': A card was drawn from the deck.
+ *   - 'system': A system-level message (e.g., game start, win notification).
+ */
 export interface GameEvent {
   message: string;
-  type: 'play' | 'discard' | 'draw' | 'system';
+
+  type: typeof GAME_EVENT_PLAY | typeof GAME_EVENT_DISCARD | typeof GAME_EVENT_DRAW | typeof GAME_EVENT_SYSTEM;
 }
 
+/**
+ * Represents the state of a player in the game.
+ *
+ * This interface encapsulates all relevant information about a player,
+ * including their hand, cards in play, progress, and UI-related flags.
+ *
+ * @property id - The unique identifier for the player.
+ * @property hand - The array of Card objects currently held by the player.
+ * @property inPlay - An object containing arrays of cards the player has played:
+ *   - progress: Progress cards the player has played.
+ *   - blocks: Block cards currently affecting the player.
+ *   - immunities: Immunity cards the player has acquired.
+ * @property totalKm - The total kilometers accumulated by the player (from progress cards).
+ * @property isReady - Indicates whether the player is ready to start the game (used for lobby/ready checks).
+ * @property aiStrategy - The name of the AI strategy assigned to the player, or null if the player is human.
+ * @property isThinking - UI flag indicating if the AI is currently "thinking" (used for visual feedback).
+ * @property isTargeted - UI flag indicating if the player is currently being targeted by an action (used for visual feedback).
+ */
 export interface PlayerState {
   id: string;
   hand: Card[];
@@ -238,15 +276,46 @@ export interface PlayerState {
   isTargeted: boolean; // for UI feedback
 }
 
-// export type ActionStateType = 'awaiting-target';
-
+/**
+ * Represents the state of a pending or current action in the game.
+ *
+ * This interface is used to track which card is being played or discarded,
+ * and optionally, which player is the target of the action (for cards that target opponents).
+ *
+ * @property cardId - The unique identifier of the card involved in the action.
+ * @property targetId - (Optional) The unique identifier of the target player, if the action targets another player.
+ */
 export interface ActionState {
-//   type: ActionStateType;
   cardId: string;
   targetId?: string;
 }
 
+/**
+ * Creates a new ActionState object.
+ *
+ * @param cardId - The ID of the card involved in the action.
+ * @param targetId - (Optional) The ID of the target player, if applicable.
+ * @returns A new ActionState object.
+ */
+export function createActionState(cardId: string, targetId?: string): ActionState {
+  return { cardId, ...(targetId ? { targetId } : {}) };
+}
 
+
+/**
+ * Represents the complete state of the game at any given moment.
+ *
+ * This interface encapsulates all information required to describe the current
+ * status of the game, including the deck, discard pile, all players, turn order,
+ * any pending or current action, and the event log.
+ *
+ * @property deck - The array of Card objects remaining in the draw pile.
+ * @property discard - The array of Card objects that have been discarded.
+ * @property players - The array of PlayerState objects representing all players in the game.
+ * @property turnIndex - The index of the player whose turn it is (corresponds to the players array).
+ * @property actionState - (Optional) The current or pending action being performed, if any.
+ * @property events - The array of GameEvent objects representing the history of actions/events in the game.
+ */
 export interface GameState {
   deck: Card[];
   discard: Card[];
@@ -345,7 +414,11 @@ export function getCardFromHand(player: PlayerState, cardId: string): Card | nul
  * @returns True if the player has a green light, false otherwise.
  */
 export function hasGreenLight(player: PlayerState): boolean {
-    return player.inPlay.progress.some(c => c.name === GREEN_LIGHT_NAME);
+    return player.inPlay.progress.some(isGreenLight);
+}
+
+export function isGreenLight(card: Card): boolean {
+  return card.name === GREEN_LIGHT_NAME;
 }
 
 /**
@@ -448,7 +521,7 @@ export function getRemedyCardForBlock(player: PlayerState, blockCard: Card): Car
  * @returns An array of PlayerState objects representing the opponents.
  */
 export function getPlayersOpponents(player: PlayerState, gameState: GameState): PlayerState[] {
-    return gameState.players.filter((p) => p !== player);
+    return gameState.players.filter((p) => p.id !== player.id);
 }
 
 /**

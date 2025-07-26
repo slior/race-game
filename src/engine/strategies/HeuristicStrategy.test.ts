@@ -1,15 +1,15 @@
 import {
   type GameState,
   type PlayerState,
-  type Card,
-  PROGRESS_TYPE,
-  BLOCK_TYPE,
-  REMEDY_TYPE,
-  BLOCK_HAZARD_TYPE,
-  BLOCK_STOP_TYPE,
   PROGRESS_100_KM_NAME,
-  BLOCK_FLAT_TIRE_TYPE,
   FLAT_TIRE_NAME,
+  createBlockCard,
+  createRemedyCard,
+  GREEN_LIGHT_NAME,
+  SPARE_TIRE_NAME,
+  createProgressCard,
+  PROGRESS_25_KM_NAME,
+  RED_LIGHT_NAME,
   REPAIR_NAME,
 } from '../../types';
 import { HeuristicStrategy } from './HeuristicStrategy';
@@ -18,13 +18,6 @@ import {
   PLAY_CARD,
   DISCARD_CARD,
 } from './IAIStrategy';
-
-const createCard = (overrides: Partial<Card> & { id: string }): Card => ({
-  type: PROGRESS_TYPE,
-  name: PROGRESS_100_KM_NAME,
-  value: 100,
-  ...overrides,
-});
 
 const createPlayerState = (
   overrides: Partial<PlayerState>
@@ -48,8 +41,9 @@ describe('HeuristicStrategy', () => {
   });
 
   it('chooses to play a remedy card if blocked', () => {
-    const flatTire = createCard({ id: 'c1', type: BLOCK_TYPE, name: FLAT_TIRE_NAME, blocksType: BLOCK_FLAT_TIRE_TYPE });
-    const repair = createCard({ id: 'c2', type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE });
+    const flatTire = createBlockCard('c1', FLAT_TIRE_NAME);
+    const spareTireId = 'c2';
+    const repair = createRemedyCard(spareTireId, SPARE_TIRE_NAME);
     const aiPlayer = createPlayerState({
       hand: [repair],
       inPlay: { ...createPlayerState({}).inPlay, blocks: [flatTire] },
@@ -57,29 +51,27 @@ describe('HeuristicStrategy', () => {
     const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
 
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(PLAY_CARD, 'c2'));
+    expect(action).toEqual(newGameAction(PLAY_CARD, spareTireId));
   });
 
   it('chooses to play Green Light if no progress has been made', () => {
-    const greenLight = createCard({
-      id: 'gl',
-      name: 'Green Light',
-      type: REMEDY_TYPE,
-      remediesType: BLOCK_STOP_TYPE,
-    });
+    const greenLightId = 'gl';
+    const greenLight = createRemedyCard(greenLightId, GREEN_LIGHT_NAME);
     const aiPlayer = createPlayerState({ hand: [greenLight] });
     const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
     
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(PLAY_CARD, 'gl'));
+    expect(action).toEqual(newGameAction(PLAY_CARD, greenLightId));
   });
 
   it('chooses the highest progress card when not blocked', () => {
-    const card50 = createCard({ id: 'c1', value: 50, name: '50km' });
-    const card100 = createCard({ id: 'c2', value: 100, name: '100km' });
+    const card50Id = 'c1';
+    const card50 = createProgressCard(card50Id, PROGRESS_25_KM_NAME);
+    const card100Id = 'c2';
+    const card100 = createProgressCard(card100Id, PROGRESS_100_KM_NAME);
     const aiPlayer = createPlayerState({
       hand: [card50, card100],
-      inPlay: { ...createPlayerState({}).inPlay, progress: [createCard({ id: 'p1' })] },
+      inPlay: { ...createPlayerState({}).inPlay, progress: [createProgressCard('p1', PROGRESS_25_KM_NAME)] },
     });
     const gameState: GameState = {
       players: [aiPlayer],
@@ -90,16 +82,11 @@ describe('HeuristicStrategy', () => {
     };
 
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(PLAY_CARD, 'c2'));
+    expect(action).toEqual(newGameAction(PLAY_CARD, card100Id));
   });
 
   it('chooses to block the leader if unable to move', () => {
-    const blockCard = createCard({
-      id: 'b1',
-      type: BLOCK_TYPE,
-      name: 'Red Light',
-      blocksType: BLOCK_STOP_TYPE,
-    });
+    const blockCard = createBlockCard('b1', RED_LIGHT_NAME);
     const aiPlayer = createPlayerState({ id: 'ai-player', hand: [blockCard] });
     const leader = createPlayerState({ id: 'leader', totalKm: 500 });
     const gameState: GameState = {
@@ -115,16 +102,13 @@ describe('HeuristicStrategy', () => {
   });
 
   it('chooses to discard a card as a last resort', () => {
-    const card50 = createCard({
-      id: 'c1',
-      type: REMEDY_TYPE,
-      name: 'Repair',
-      remediesType: BLOCK_HAZARD_TYPE,
-    });
-    const aiPlayer = createPlayerState({ hand: [card50] });
-    const gameState: GameState = { players: [aiPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
+    const cardId = 'c1';
+    const card = createRemedyCard(cardId, REPAIR_NAME);
+    const aiPlayer = createPlayerState({ hand: [card] });
+    const otherPlayer = createPlayerState({ id: 'other-player' });
+    const gameState: GameState = { players: [aiPlayer, otherPlayer], deck: [], discard: [], turnIndex: 0, events: [] };
 
     const action = strategy.decideMove(aiPlayer, gameState);
-    expect(action).toEqual(newGameAction(DISCARD_CARD, 'c1'));
+    expect(action).toEqual(newGameAction(DISCARD_CARD, cardId));
   });
 }); 

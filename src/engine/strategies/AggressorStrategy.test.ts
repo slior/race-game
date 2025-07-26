@@ -10,6 +10,7 @@ import {
   BLOCK_FLAT_TIRE_TYPE,
   PROGRESS_100_KM_NAME,
   GREEN_LIGHT_NAME,
+  REPAIR_NAME,
 } from '../../types';
 import { AggressorStrategy } from './AggressorStrategy';
 import {
@@ -117,7 +118,7 @@ describe('AggressorStrategy', () => {
   });
 
   it('discards as a last resort', () => {
-    const card = createCard({ id: 'c1', type: REMEDY_TYPE, name: 'Repair', remediesType: BLOCK_FLAT_TIRE_TYPE });
+    const card = createCard({ id: 'c1', type: REMEDY_TYPE, name: REPAIR_NAME, remediesType: BLOCK_FLAT_TIRE_TYPE });
     const aiPlayer = createPlayerState({ hand: [card] });
     // No opponents to attack
     const gameState: GameState = {

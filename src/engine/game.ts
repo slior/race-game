@@ -15,13 +15,14 @@ import {
   REMEDY_TYPE,
   IMMUNITY_TYPE,
   PROGRESS_TYPE,
-  GREEN_LIGHT_NAME,
   BLOCK_STOP_TYPE,
   isCardPlayable,
   getCurrentPlayer,
   getCardFromHand,
   getPlayerById,
   getPlayerIndex,
+  type BlockType,
+  isGreenLight,
 } from '../types';
 import { createDeck, draw, shuffle } from './deck';
 
@@ -30,6 +31,11 @@ import { createDeck, draw, shuffle } from './deck';
  */
 export interface PlayerConfig {
   aiStrategy: string | null;
+}
+
+
+function remedy(blocks: Card[], remediesType: BlockType): Card[] {
+  return blocks.filter(b => b.blocksType !== remediesType);
 }
 
 /**
@@ -59,19 +65,16 @@ export function applyCardToPlayer(player: PlayerState, card: Card): PlayerState 
       if (card.value) {
         newPlayerState.totalKm += card.value;
       }
+      else throw new Error('Invalid state: progress card has no value');
       break;
     case REMEDY_TYPE:
-      if (card.name === GREEN_LIGHT_NAME) {
+      if (isGreenLight(card)) {
         // A green light is a prerequisite for progress, but also removes a "Stop" block.
         newPlayerState.inPlay.progress.push(card);
-        newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
-          b => b.blocksType !== BLOCK_STOP_TYPE
-        );
+        newPlayerState.inPlay.blocks = remedy(newPlayerState.inPlay.blocks, BLOCK_STOP_TYPE);
       } else {
         // Any other remedy card removes the corresponding block.
-        newPlayerState.inPlay.blocks = newPlayerState.inPlay.blocks.filter(
-          b => b.blocksType !== card.remediesType
-        );
+        newPlayerState.inPlay.blocks = remedy(newPlayerState.inPlay.blocks, card.remediesType!);
       }
       break;
     case BLOCK_TYPE:
