@@ -12,7 +12,7 @@ This module contains the core game logic for the RACE card game. It is built on 
 
 - [`cards.ts`](../../../src/engine/cards.ts): Defines the master list of all game cards, using type-safe constants from `types.ts` to construct the deck. This serves as the single source of truth for all card data.
 - [`deck.ts`](../../../src/engine/deck.ts): Provides pure functions for deck management, including creating, shuffling, and drawing cards.
-- [`game.ts`](../../../src/engine/game.ts): Implements the core game state management. It includes pure functions for creating the initial game state, applying card effects (`applyCardToPlayer`), processing player actions (`playCard`), advancing turns, and checking for a win condition. This file is central to the game's pure-function architecture.
+- [`game.ts`](../../../src/engine/game.ts): Implements the core game state management. It includes pure functions for creating the initial game state, applying card effects (`applyCardToPlayer`), processing player actions (`playCard`), advancing turns, and checking for a win condition. It also contains critical rule-enforcement functions like `isCardPlayable` and `isImmuneTo`. This file is central to the game's pure-function architecture.
 - [`ai.ts`](../../../src/engine/ai.ts): Provides a factory function (`createAIStrategy`) that takes a strategy name and returns a concrete AI strategy object. This decouples the main application from the specific strategy implementations.
 
 ## Architecture

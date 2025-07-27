@@ -14,8 +14,7 @@ This directory contains the main entry point for the application, core data type
 
 - [`main.ts`](../../src/main.ts): The main entry point for the application. It initializes the `App` component and handles URL query parameters (`playerCount`, `aiPlayers`) to configure a new game.
 - [`app.ts`](../../src/app.ts): The top-level application component that orchestrates the UI and game state. It contains the main asynchronous `gameLoop` which manages turn progression for both human and AI players.
-- [`types.ts`](../../src/types.ts): Defines all core data structures (`Card`, `PlayerState`, `GameState`) and type-safe constants. It also provides a rich set of pure helper functions for rule enforcement (`isCardPlayable`), state queries (`getCurrentPlayer`, `isBlocked`), and AI logic support (`getHighestProgressCard`).
-- [`storage.ts`](../../src/storage.ts): Provides utility functions for saving and loading the game state to and from the browser's local storage or URL hash.
+- [`types.ts`](../../src/types.ts): Defines all core data structures (`Card`, `PlayerState`, `GameState`) and type-safe constants. It also provides a rich set of pure helper functions for state queries (`getCurrentPlayer`, `isBlocked`, `hasGreenLight`), and AI logic support (`getHighestProgressCard`, `getRemedyCardForBlock`).
 
 ## Architecture
 

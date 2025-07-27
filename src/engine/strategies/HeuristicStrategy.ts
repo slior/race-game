@@ -1,6 +1,6 @@
 import {
   type PlayerState, type GameState,
-  getRemedyCardForBlock, isBlocked, getHighestProgressCard, isImmuneTo, BLOCK_TYPE, IMMUNITY_TYPE,
+  getRemedyCardForBlock, isBlocked, getHighestProgressCard, BLOCK_TYPE, IMMUNITY_TYPE,
   hasProgress,
   GREEN_LIGHT_NAME,
   getPlayersOpponents,
@@ -15,7 +15,7 @@ import {
   DISCARD_CARD,
   newGameAction,
 } from './IAIStrategy';
-
+import { isImmuneTo } from '../game';
 
 /**
  * HeuristicStrategy is an AI strategy for deciding moves in the game using a simple set of prioritized rules.

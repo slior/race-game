@@ -1,10 +1,9 @@
-import { BLOCK_TYPE, type PlayerState, type GameState, isImmuneTo, 
-    // isBlocked, getHighestProgressCard,
-    getPlayersOpponents, getLeader, isCardPlayable,
+import { BLOCK_TYPE, type PlayerState, type GameState, 
+    getPlayersOpponents, getLeader,
     createActionState, 
-    // REMEDY_TYPE, hasGreenLight 
 } from '../../types';
 import { type IAIStrategy, type GameAction, PLAY_CARD, DISCARD_CARD, newGameAction } from './IAIStrategy';
+import { isCardPlayable, isImmuneTo } from '../game';
 
 export class AggressorStrategy implements IAIStrategy {
 

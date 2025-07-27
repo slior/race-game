@@ -11,9 +11,6 @@ import {
   type GameState,
   type Card,
   BLOCK_TYPE,
-  type GameEvent,
-  isCardPlayable,
-//   type PlayerState,
 } from './types';
 import {
   createInitialGameState,
@@ -21,6 +18,7 @@ import {
   advanceTurn,
   checkWinCondition,
   playCard,
+  isCardPlayable,
 } from './engine/game';
 import { createAIStrategy } from './engine/ai';
 import { draw } from './engine/deck';

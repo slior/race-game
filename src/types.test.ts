@@ -5,7 +5,6 @@
  * helper utilities defined in `types.ts`.
  */
 import {
-  isCardPlayable,
   type GameState,
   type PlayerState,
   type Card,
@@ -22,7 +21,7 @@ import {
   REPAIR_NAME,
   ACCIDENT_NAME,
 } from './types';
-// import { FULL_DECK } from './engine/cards';
+import { isCardPlayable } from './engine/game';
 
 // Helper to create a mock player
 const createMockPlayer = (

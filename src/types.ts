@@ -422,23 +422,6 @@ export function isGreenLight(card: Card): boolean {
 }
 
 /**
- * Checks if a player is immune to the effect of a given Block card.
- *
- * This function determines whether the player has an immunity card in play
- * that matches the type of block specified by the provided card.
- *
- * @param player - The PlayerState object representing the player to check.
- * @param card - The Card object representing the Block card to check immunity against.
- * @returns True if the player is immune to the block type of the card, false otherwise.
- */
-export function isImmuneTo(player: PlayerState, card: Card): boolean {
-    if (!player || !card || !card.blocksType)
-        return false;
-    // return player.inPlay.immunities.some((immunity) => immunity.remediesType === card.blocksType);
-    return hasImmunity(player, card.blocksType);
-}
-
-/**
  * Determines if a player is currently blocked.
  *
  * This function checks whether the player has any Block cards in their in-play area,
@@ -555,63 +538,3 @@ export function hasImmunity(player: PlayerState, remediesType: string): boolean 
     return player.inPlay.immunities.some((immunity) => immunity.remediesType === remediesType);
 }
 
-/**
- * Determines if a card can be legally played in the current game state.
- *
- * This function serves as the single source of truth for card playability rules.
- * It checks the card type and the game state to decide if a move is valid.
- * - Progress cards require a Green Light.
- * - Remedy cards require a corresponding Block to be in play.
- * - Block cards require a target who is not immune.
- *
- * @param card The card to be played.
- * @param gameState The current state of the game.
- * @returns True if the card is playable, false otherwise.
- */
-export function isCardPlayable(card: Card, gameState: GameState): boolean {
-  const currentPlayer = gameState.players[gameState.turnIndex];
-
-  switch (card.type) {
-    case PROGRESS_TYPE:
-      // Player must have a Green Light and must not be blocked.
-      return hasGreenLight(currentPlayer) && !isBlocked(currentPlayer);
-
-    case REMEDY_TYPE:
-      // Special logic for Green Light
-      if (card.name === GREEN_LIGHT_NAME) {
-        const isBlockedByStop = currentPlayer.inPlay.blocks.some(b => b.blocksType === BLOCK_STOP_TYPE);
-        // Playable if it's the first one, or if remedying a stop sign.
-        return !hasGreenLight(currentPlayer) || isBlockedByStop;
-      }
-      // Other remedies can only be played if the corresponding block is active.
-      return currentPlayer.inPlay.blocks.some(b => b.blocksType === card.remediesType);
-
-    case BLOCK_TYPE: {
-      // If not in a targeting state, any block card is playable to initiate the action.
-      if (!gameState.actionState) {
-        return true;
-      }
-
-      // If in a targeting state, a target must be selected and not be immune.
-      const targetId = gameState.actionState.targetId;
-      if (!targetId) {
-        return false; // Not playable until a target is chosen.
-      }
-
-      const targetPlayer = gameState.players.find(p => p.id === targetId);
-      if (!targetPlayer) {
-        return false; // Invalid target ID.
-      }
-
-      // Playable if the target is not immune.
-      return !isImmuneTo(targetPlayer, card);
-    }
-
-    case IMMUNITY_TYPE:
-      // Immunity cards can always be played.
-      return true;
-
-    default:
-      return false;
-  }
-}
