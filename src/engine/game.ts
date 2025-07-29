@@ -99,7 +99,7 @@ export function applyCardToPlayer(player: PlayerState, card: Card): PlayerState 
  * @param message The event message.
  * @returns A new GameState object with the event added.
  */
-function addGameEvent(gameState: GameState, type: GameEvent['type'], message: string): GameState {
+export function addGameEvent(gameState: GameState, type: GameEvent['type'], message: string): GameState {
     const newEvents = [{ type, message }, ...gameState.events];
     if (newEvents.length > 50) {
       newEvents.pop();
@@ -147,8 +147,6 @@ export function playCard(gameState: GameState, cardId: string, targetPlayerId?: 
       const newTargetPlayer = applyCardToPlayer(targetPlayer, card);
       newState.players = newState.players.map(p => p.id === newTargetPlayer.id ? newTargetPlayer : p); // update target player
 
-      newState = advanceTurn(newState);
-
       
       logMessage = (targetPlayerId && targetPlayerId !== player.id) ?
             `Player ${player.id} played ${card.name} on Player ${getPlayerIndex(targetPlayer, newState) + 1}.` :
@@ -164,12 +162,45 @@ export function playCard(gameState: GameState, cardId: string, targetPlayerId?: 
 
 
 /**
+ * Discards a card from the current player's hand and updates the game state.
+ *
+ * This function removes the specified card from the current player's hand,
+ * adds it to the discard pile, and logs the discard event. If the card is not
+ * found in the player's hand, the original game state is returned unchanged.
+ *
+ * @param gameState - The current state of the game.
+ * @param cardId - The ID of the card to discard.
+ * @returns A new GameState object reflecting the discard action.
+ */
+export function discardCard(gameState: GameState, cardId: string): GameState {
+    const player = getCurrentPlayer(gameState);
+    const card = getCardFromHand(player, cardId);
+
+    if (!card) {
+        console.error(`Card ${cardId} not found in player ${player.id}'s hand.`);
+        return gameState; // Return original state if card not found
+    }
+
+    // Create a new state object for immutability
+    const newState = {
+        ...gameState,
+        players: gameState.players.map(p => p.id === player.id ? { ...p, hand: p.hand.filter(c => c.id !== cardId) } : p),
+        discard: [...gameState.discard, card],
+    };
+
+    const logMessage = `Player ${player.id} discarded ${card.name}.`;
+    return addGameEvent(newState, 'discard', logMessage);
+}
+
+
+/**
  * Advances the game to the next turn.
  * @param gameState - The current state of the game.
  * @returns A new GameState object with the turn index updated.
  */
 export function advanceTurn(gameState: GameState): GameState {
   const newTurnIndex = (gameState.turnIndex + 1) % gameState.players.length;
+  console.log(`Advancing turn to ${newTurnIndex}`);
   return {
     ...gameState,
     turnIndex: newTurnIndex,

@@ -94,11 +94,14 @@ function makeProgressOrPlayGreenLight(aiPlayer: PlayerState): GameAction | null 
   if (!hasMadeProgress && greenLight) {
     return newGameAction(PLAY_CARD, greenLight.id);
   }
-  else { //not blocked, but made progress, so play highest progress card
+  else if(hasMadeProgress) { //made progress, so play highest progress card
     const highestCard = getHighestProgressCard(aiPlayer);
     if (highestCard) {
       return newGameAction(PLAY_CARD, highestCard.id);
     }
+  }
+  else {
+    console.log(`AI ${aiPlayer.id} has not made progress, and no green light card found`);
   }
   return null;
 }

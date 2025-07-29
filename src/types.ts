@@ -277,6 +277,17 @@ export interface PlayerState {
 }
 
 /**
+ * Determines whether the given player is controlled by an AI.
+ *
+ * @param player - The PlayerState instance to check.
+ * @returns True if the player has a non-null aiStrategy (i.e., is an AI player), otherwise false.
+ */
+export function isAIPlayer(player: PlayerState): boolean {
+  return player.aiStrategy !== null;
+}
+
+
+/**
  * Represents the state of a pending or current action in the game.
  *
  * This interface is used to track which card is being played or discarded,

@@ -285,7 +285,11 @@ it('should apply an immunity card to the player and prevent future blocks of tha
         expect(stateAfterImmunity.discard.find((c: Card) => c.id === IMMUNITY_CARD_ID)).toBeDefined();
         expect(player1AfterImmunity.inPlay.immunities.some((c: Card) => c.id === IMMUNITY_CARD_ID)).toBe(true);
         expect(stateAfterImmunity.events[0].message).toContain('played Driving Ace');
-        expect(stateAfterImmunity.turnIndex).toBe(1); // After player 1 plays, it should be player 2's turn
+        expect(stateAfterImmunity.turnIndex).toBe(0); // playCard should not advance turn
+
+        // Advance turn manually
+        stateAfterImmunity = advanceTurn(stateAfterImmunity);
+        expect(stateAfterImmunity.turnIndex).toBe(1);
 
         // Now, player 2 tries to play a block of the same type on player 1
         stateAfterImmunity.players[1].hand.push(blockCard);

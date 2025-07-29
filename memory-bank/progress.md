@@ -34,6 +34,7 @@
 *   **Progress While Blocked**: Fixed a bug that allowed players to play progress cards while under the effect of a block card.
 *   **Test Suite Mocks**: Updated all mock objects in the unit test suites to include the new `isReady` property on the `PlayerState` interface, resolving all test failures.
 *   **Repair Card Logic**: Fixed a bug where the "Repair" card was misconfigured to fix a "Flat Tire" instead of an "Accident", preventing players from playing it correctly.
+*   **Asynchronous Discard Bug**: Fixed a critical race condition that occurred when a player discarded a card. The root cause was an impure event handler directly modifying the game state and advancing the turn, which conflicted with the main `gameLoop`. This was resolved by refactoring the discard logic into a pure function in the game engine and ensuring the `gameLoop` is the sole manager of turn advancement.
 
 ## Current Status
 *   **Overall**: The game is feature-complete and the core engine is now highly stable after a major architectural refactoring to fix a critical race condition. The `gameLoop` pattern provides a robust foundation for turn management. The AI is also more robust and makes more intelligent, valid moves.

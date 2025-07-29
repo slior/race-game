@@ -1,16 +1,15 @@
 # Active Context
 
 ## Current Work Focus
-The last session focused on refining the core game logic, particularly the `playCard` function, to handle invalid moves more gracefully and improve the AI's decision-making process.
+The last session focused on fixing a critical asynchronous timing bug that caused inconsistent game states, particularly when AI players were involved.
 
 ## Recent Changes
--   **Refined `playCard` Logic**: The `playCard` function in `src/engine/game.ts` was updated. It no longer advances the turn if an invalid card is played. Instead, it now logs an event indicating the failed attempt, making the game flow more robust and easier to debug.
--   **Smarter AI Strategies**: The AI strategies (e.g., `AggressorStrategy`) were updated to use the centralized `isCardPlayable` helper function. This ensures that the AI only attempts to make valid moves, preventing it from getting stuck or making illegal plays.
--   **Test Suite Updates**: The test suites for the game engine and AI strategies (`game.test.ts`, `AggressorStrategy.test.ts`) were updated to reflect the new `playCard` behavior and validate the improved AI logic.
+- **Fixed Asynchronous Race Condition**: A major bug was identified where players' hands would grow indefinitely. The root cause was a race condition between the asynchronous `handleAITurn` function and the main `gameLoop`. An impure `handleDiscardCardRequest` function was mutating state and advancing the turn directly, clashing with the `gameLoop`'s responsibility as the single source of truth for turn progression.
+- **Refactored to Pure Functions**: The solution involved refactoring the discard logic into a new, pure `discardCard` function in the game engine (`src/engine/game.ts`).
+- **Centralized Turn Management**: All turn advancement logic was removed from individual action handlers and consolidated within the main `gameLoop` in `src/app.ts`. The loop now reliably waits for a player's action to complete, *then* advances the turn. This has made the game's state management much more robust and predictable.
 
 ## Next Steps
-With the core game engine and AI being more robust, the focus can now shift to end-to-end testing of the full game loop, especially with multiple AI players. Further refinement of AI strategies to add more sophisticated behaviors is also a good next step.
+With the core state management and game loop now stable, the immediate priority is to write comprehensive end-to-end tests. This will validate the fix and ensure long-term stability, especially in complex scenarios with multiple AI players.
 
 ## Active Decisions and Considerations
-- The use of pure functions and centralized helper functions (`isCardPlayable`) continues to be a successful pattern. It should be maintained for all new game logic.
-- The game event log has become more important for tracking both successful and failed actions. This could be enhanced in the UI to be more visible to the player. 
+- The pattern of using pure functions for all engine logic (`playCard`, `discardCard`, `advanceTurn`) combined with a single, authoritative `gameLoop` that applies the state changes is now a core architectural principle. All future game logic modifications must adhere to this pattern to prevent similar race conditions. 

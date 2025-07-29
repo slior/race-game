@@ -12,7 +12,7 @@ import type { Card } from '../types';
  * @property {Card | null} selectedCard - The currently selected card, or null if no card is selected.
  * @property {(card: Card) => void} onCardSelect - Callback invoked when a card is clicked.
  */
-
+export const CARD_SELECTED_EVENT = 'card-selected';
 /**
  * Renders the current player's hand, displaying their cards in an interactive fan layout.
  * It handles card selection visuals and forwards selection events to the parent component.
@@ -27,7 +27,7 @@ export function HandView(
 ) {
   const onCardClick = (card: Card) => {
     document.dispatchEvent(
-      new CustomEvent('card-selected', {
+      new CustomEvent(CARD_SELECTED_EVENT, {
         detail: { cardId: card.id },
         bubbles: true,
         composed: true,

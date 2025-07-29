@@ -14,6 +14,8 @@ import { hasGreenLight, isBlocked } from '../types';
 import { html, type TemplateResult } from 'lit-html';
 import { classMap } from 'lit-html/directives/class-map.js';
 
+export const PLAYER_SELECTED_AS_TARGET_EVENT = 'player-selected-as-target';
+
 /**
  * Renders the view for a single player.
  *
@@ -40,7 +42,7 @@ export function renderPlayer(
     e.stopPropagation();
     if (!isTargetable) return;
     document.dispatchEvent(
-      new CustomEvent('player-selected-as-target', {
+      new CustomEvent(PLAYER_SELECTED_AS_TARGET_EVENT, {
         detail: { playerIndex },
       })
     );

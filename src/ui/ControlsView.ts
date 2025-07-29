@@ -16,6 +16,9 @@ interface ControlsProps {
   isAITurnInProgress: boolean;
 }
 
+export const DISCARD_CARD_EVENT = 'discard-card-requested';
+export const PLAY_CARD_EVENT = 'play-card-requested';
+
 /**
  * Renders the main game controls.
  *
@@ -33,9 +36,9 @@ export function ControlsView({
   isAITurnInProgress,
 }: ControlsProps) {
   const onPlay = () =>
-    document.dispatchEvent(new CustomEvent('play-card-requested'));
+    document.dispatchEvent(new CustomEvent(PLAY_CARD_EVENT));
   const onDiscard = () =>
-    document.dispatchEvent(new CustomEvent('discard-card-requested'));
+    document.dispatchEvent(new CustomEvent(DISCARD_CARD_EVENT));
 
   const playButtonDisabled =
     !selectedCardId ||

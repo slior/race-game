@@ -81,10 +81,11 @@ A core principle of the game engine is its use of pure functions for all state t
     *   **Testability**: The core game logic is now trivial to unit test. We can call the pure function with a crafted `GameState` and assert that the returned state is correct, with no need for DOM simulation.
     *   **Decoupling**: The `engine` is now a standalone module that is not aware of the `ui` layer. This makes the codebase cleaner and easier to reason about.
     *   **Predictability**: Since all state changes are handled by pure functions, the behavior of the game is highly predictable and free of side effects.
+    *   **Race Condition Prevention**: This pattern is crucial for preventing race conditions, especially with asynchronous operations like AI turns. A recent bug was fixed where an impure discard handler was mutating the state and advancing the turn *during* an AI's turn. This clashed with the main `gameLoop`, which also manages turn advancement, leading to desynchronized state and inconsistent behavior (e.g., players drawing extra cards). By ensuring *all* game actions are pure functions and that the `gameLoop` is the *single source of truth* for applying state changes and advancing turns, we eliminate this entire class of bugs.
 
 ## 4. Asynchronous Turn Management
 
-A critical architectural pattern is the central, asynchronous `gameLoop` within the `App` component. This loop is the heart of the game's turn-based flow and was implemented to solve a significant race condition bug related to concurrent AI turns.
+A critical architectural pattern is the central, asynchronous `gameLoop` within the `App` component. This loop is the heart of the game's turn-based flow and works in tandem with the pure-function engine to provide robust state management.
 
 *   **Initial Problem**: The previous event-based system used a simple boolean flag (`isAITurnInProgress`) to prevent AI turns from overlapping. This approach was fragile and failed when multiple AI players took turns in succession, as the flag was not reset before the next turn was checked, causing the game to stall.
 
@@ -104,9 +105,10 @@ A critical architectural pattern is the central, asynchronous `gameLoop` within 
 
 *   **How it Works**:
     *   The `gameLoop` method is an `async` function that runs continuously until a winner is found.
-    *   **For AI turns**, it `await`s the `handleAITurn` method. This method contains all the logic for an AI's move, including UI delays. The loop naturally pauses until the AI's turn is fully complete.
-    *   **For human turns**, it `await`s a `waitForHumanAction` method. This method returns a promise that only resolves when the human player clicks a valid action button. The UI event handlers for playing or discarding cards are responsible for resolving this promise.
-    *   This design elegantly handles both synchronous (human) and asynchronous (AI) actions without complex state flags, eliminating the race condition and making the game's control flow robust and predictable.
+    *   It first calls the appropriate action handler (`handleAITurn` or `waitForHumanAction`) and `await`s its completion. These handlers are responsible for determining the action and updating the state by calling the pure functions from the engine.
+    *   **After the action is complete**, the loop checks for a win condition.
+    *   Finally, it calls the pure `advanceTurn` function and re-renders, ensuring a clean, predictable, and sequential progression of game state.
+    *   This design elegantly handles both synchronous (human) and asynchronous (AI) actions without complex state flags, eliminating race conditions and making the game's control flow robust and predictable.
 
 ## 5. State & Storage Layer
 
