@@ -25,6 +25,7 @@
 *   **AI Strategy Refinement**: The current AI strategies are functional but could be made more sophisticated.
 
 ## Recent Bug Fixes
+*   **Go Indicator Styling Bug**: Fixed a visual bug where the green "go" indicator was rendering as a squashed oval instead of a circle. The root cause was that the `<span>` element used for the indicator had a default `display: inline` style, which does not respect `width` and `height` properties. The fix was to add `display: inline-block;` to the `.go-indicator` CSS class in `src/ui/ui.css`.
 *   **AI Infinite Hand Bug**: Fixed a bug in the `AggressorStrategy` where the AI would fail to make a valid move and never discard, causing its hand to grow indefinitely. The strategy was refactored to use the central `isCardPlayable` function to ensure its chosen move is always valid.
 *   **AI Race Condition**: Fixed a critical bug where the game would stall in all-AI matches. The root cause was a race condition in the previous event-based turn management. The system was completely refactored to use a central, asynchronous `gameLoop` that gracefully handles both human and AI turns, eliminating the bug and improving overall stability.
 *   **Invalid AI Moves**: Fixed a bug where AI players could attempt to play invalid cards (e.g., a block card against an immune opponent), causing the game to stall. The AI strategies now use the central `isCardPlayable` function to ensure all chosen moves are valid before execution.
