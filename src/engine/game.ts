@@ -23,6 +23,8 @@ import {
   getPlayerIndex,
   type BlockType,
   isGreenLight,
+  copyGameState,
+  replacePlayer,
 } from '../types';
 import { createDeck, draw, shuffle } from './deck';
 
@@ -122,12 +124,8 @@ export function playCard(gameState: GameState, cardId: string, targetPlayerId?: 
    
     const card = getCardFromHand(getCurrentPlayer(gameState), cardId);
     if (!card) return gameState; // Card not found, return original state
-    
-    let newState = {
-        ...gameState,
-        players: gameState.players.map(p => ({...p})),
-        discard: [...gameState.discard],
-    };
+
+    let newState = copyGameState(gameState);
     
     const player = getCurrentPlayer(newState);
     let logMessage: string;
@@ -141,12 +139,11 @@ export function playCard(gameState: GameState, cardId: string, targetPlayerId?: 
       player.hand = player.hand.filter(c => c.id !== card.id); // Remove card from hand
 
       const targetPlayer = targetPlayerId ? getPlayerById(newState, targetPlayerId) : player;
-      
       if (!targetPlayer) throw new Error('Target player not found');
 
       const newTargetPlayer = applyCardToPlayer(targetPlayer, card);
-      newState.players = newState.players.map(p => p.id === newTargetPlayer.id ? newTargetPlayer : p); // update target player
-
+      // newState.players = newState.players.map(p => p.id === newTargetPlayer.id ? newTargetPlayer : p); // update target player
+      newState.players = replacePlayer(newState, newTargetPlayer);
       
       logMessage = (targetPlayerId && targetPlayerId !== player.id) ?
             `Player ${player.id} played ${card.name} on Player ${getPlayerIndex(targetPlayer, newState) + 1}.` :

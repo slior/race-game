@@ -38,6 +38,7 @@ import { ControlsView, DISCARD_CARD_EVENT, PLAY_CARD_EVENT } from './ui/Controls
 import { LogView } from './ui/LogView';
 import { DISCARD_CARD, PLAY_CARD } from './engine/strategies/IAIStrategy';
 
+const UI_DELAY_MS = 1000;
 
 
 class App {
@@ -258,6 +259,7 @@ class App {
 
   // --- AI Turn Logic ---
 
+  
   /**
    * Delays execution for a specified number of milliseconds.
    *
@@ -297,7 +299,7 @@ class App {
     // 1. Set "Thinking" state
     player.isThinking = true;
     this.render();
-    await this.delay(1000);
+    await this.delay(UI_DELAY_MS);
 
     // 2. Decide move
     const ai = createAIStrategy(player.aiStrategy);
@@ -309,7 +311,7 @@ class App {
     this.selectedCardId = action.cardId;
     this.render();
     // console.log(`AI ${player.id} delayed for 1 second`);
-    await this.delay(1000);
+    await this.delay(UI_DELAY_MS);
     // console.log(`AI ${player.id} continuing...`);
 
     // 3. Handle action
@@ -321,14 +323,13 @@ class App {
           if (targetPlayer) {
             targetPlayer.isTargeted = true;
             this.render();
-            await this.delay(1000);
+            await this.delay(UI_DELAY_MS);
             targetPlayer.isTargeted = false;
             this.state = playCard(this.state, cardToPlay.id, targetPlayer.id);
           }
         } else { // no target specified - play on self
           this.state = playCard(this.state, cardToPlay.id);
         }
-        //Note: the playCard method will advance the turn if the card is played successfully
       }
       else {
         throw new Error(`AI ${player.id} tried to play card ${action.cardId} but it was not found in their hand`);
@@ -336,7 +337,7 @@ class App {
     } else if (action.type === DISCARD_CARD) {
       this.state = discardCard(this.state, action.cardId)
       this.render();
-      await this.delay(1000); 
+      await this.delay(UI_DELAY_MS); 
     }
   }
 

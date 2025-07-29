@@ -337,6 +337,57 @@ export interface GameState {
 }
 
 /**
+ * Creates a deep copy of the provided GameState object.
+ *
+ * This function ensures that all nested objects and arrays within the GameState
+ * are also copied, so that mutations to the returned GameState do not affect the original.
+ *
+ * @param gameState - The GameState instance to copy.
+ * @returns A new GameState object that is a deep copy of the input.
+ */
+export function copyGameState(gameState: GameState): GameState {
+  return {
+    deck: gameState.deck.map(card => ({ ...card })),
+    discard: gameState.discard.map(card => ({ ...card })),
+    players: gameState.players.map(player => ({
+      ...player,
+      hand: player.hand.map(card => ({ ...card })),
+      inPlay: {
+        ...player.inPlay,
+        progress: player.inPlay.progress.map(card => ({ ...card })),
+        blocks: player.inPlay.blocks.map(card => ({ ...card })),
+        immunities: player.inPlay.immunities.map(card => ({ ...card })),
+      },
+    })),
+    turnIndex: gameState.turnIndex,
+    actionState: gameState.actionState
+      ? { ...gameState.actionState }
+      : gameState.actionState,
+    events: gameState.events.map(event => ({ ...event })),
+  };
+}
+
+/**
+ * Replaces a player in the GameState's players array with the provided PlayerState instance.
+ *
+ * This function searches for a player in the gameState.players array by matching the player's id.
+ * If found, it returns a new array with the player replaced by the given instance.
+ * If the provided player instance is nullish, it returns the original array.
+ *
+ * @param gameState - The current GameState object.
+ * @param player - The PlayerState instance to insert (must have a valid id).
+ * @returns A new players array with the player replaced, or the original array if player is nullish.
+ */
+export function replacePlayer(
+  gameState: GameState,
+  player: PlayerState | null | undefined
+): PlayerState[] {
+  if (!player) return gameState.players;
+  return gameState.players.map(p => (p.id === player.id ? player : p));
+}
+
+
+/**
  * Retrieves a player from the game state by their unique ID.
  *
  * This function searches the list of players in the provided GameState
